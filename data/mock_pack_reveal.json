@@ -1,21 +1,21 @@
 {
   "title": "New Card Pack Unlocked!",
+  "autoCloseIn": 10,
   "cards": [
     {
-      "cardId": "015",
-      "rarity": "Common",
-      "newUnlock": false
-    },
-    {
-      "cardId": "057",
+      "cardId": "045",
       "rarity": "Rare",
       "newUnlock": true
     },
     {
-      "cardId": "121",
+      "cardId": "087",
+      "rarity": "Uncommon",
+      "newUnlock": false
+    },
+    {
+      "cardId": "127",
       "rarity": "Legendary",
       "newUnlock": true
     }
-  ],
-  "autoCloseIn": 10
+  ]
 }
