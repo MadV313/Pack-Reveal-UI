@@ -14,47 +14,50 @@ export async function renderPackReveal() {
 
     data.cards.forEach((card, index) => {
       const cardDiv = document.createElement('div');
-      cardDiv.classList.add('card', card.rarity.toLowerCase());
+      cardDiv.classList.add('card-slot');
 
-      const img = document.createElement('img');
-      img.src = `images/cards/${card.cardId}.png`;
-      img.alt = card.cardId;
+      const cardBack = document.createElement('img');
+      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
+      cardBack.className = 'card-img card-back';
+      cardDiv.appendChild(cardBack);
+      container.appendChild(cardDiv);
 
-      cardDiv.appendChild(img);
-      cardDiv.style.animationDelay = `${delay}s`;
-      delay += 1;
+      setTimeout(() => {
+        cardBack.classList.add('flip-out');
 
-      if (card.newUnlock) {
-        const badge = document.createElement('span');
-        badge.classList.add('new-unlock');
-        badge.textContent = 'New!';
-        cardDiv.appendChild(badge);
+        const faceImg = document.createElement('img');
+        faceImg.src = `images/cards/${card.cardId}.png`;
+        faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
+        cardDiv.appendChild(faceImg);
 
-        setTimeout(() => {
+        if (card.newUnlock) {
+          const badge = document.createElement('span');
+          badge.classList.add('new-unlock');
+          badge.textContent = 'New!';
+          cardDiv.appendChild(badge);
+
           toast.textContent = `New card unlocked: ${card.cardId}`;
           toast.classList.add('show');
           setTimeout(() => toast.classList.remove('show'), 3000);
-        }, delay * 1000);
-      }
-
-      container.appendChild(cardDiv);
+        }
+      }, 1000 * (index + 1));
     });
 
     let seconds = data.autoCloseIn || 10;
+    countdown.textContent = `Closing in ${seconds}s...`;
+
     const timer = setInterval(() => {
-      countdown.textContent = `Closing in ${seconds--}s...`;
-      if (seconds < 0) {
+      seconds--;
+      countdown.textContent = `Closing in ${seconds}s...`;
+      if (seconds <= 0) {
         clearInterval(timer);
-        window.location.href = 'index.html'; // Or redirect to main UI
+        window.location.href = 'index.html'; // or to the main collection UI
       }
     }, 1000);
 
-    closeBtn.onclick = () => {
-      window.location.href = 'index.html';
-    };
-
+    closeBtn.onclick = () => window.location.href = 'index.html';
   } catch (err) {
-    console.error("Pack reveal failed to load:", err);
-    title.textContent = "Failed to load card pack.";
+    console.error('Pack reveal load failed:', err);
+    title.textContent = 'Failed to load card pack.';
   }
 }
