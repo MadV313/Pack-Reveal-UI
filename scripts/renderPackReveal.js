@@ -51,11 +51,12 @@ export async function renderPackReveal() {
       countdown.textContent = `Closing in ${seconds}s...`;
       if (seconds <= 0) {
         clearInterval(timer);
-        window.location.href = 'index.html'; // or to the main collection UI
+        window.location.href = 'index.html'; // Adjust to real return page if needed
       }
     }, 1000);
 
     closeBtn.onclick = () => window.location.href = 'index.html';
+
   } catch (err) {
     console.error('Pack reveal load failed:', err);
     title.textContent = 'Failed to load card pack.';
