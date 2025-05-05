@@ -7,6 +7,12 @@ body {
   background: url('../images/backgrounds/pack_reveal_bg.png') no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 #background {
@@ -18,23 +24,23 @@ body {
 }
 
 #reveal-title {
-  font-size: 36px;
-  margin: 30px 0 20px;
-  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+  font-size: 48px;
+  margin: 30px 0 10px;
+  text-shadow: 0 0 12px rgba(255,255,255,0.9);
 }
 
 .card-container {
   display: flex;
   justify-content: center;
-  gap: 30px;
-  padding: 40px;
-  animation: slideIn 1s ease-in-out;
+  gap: 40px;
+  margin: 20px 0;
+  padding: 20px;
 }
 
 .card-slot {
   position: relative;
-  width: 140px;
-  height: 200px;
+  width: 180px;
+  height: 260px;
   perspective: 1000px;
 }
 
@@ -59,38 +65,29 @@ body {
 
 /* Border Glow by Rarity */
 .border-common {
-  box-shadow: 0 0 12px 2px #32cd32;
+  box-shadow: 0 0 12px 3px #32cd32;
 }
 
 .border-uncommon {
-  box-shadow: 0 0 12px 2px #1e90ff;
+  box-shadow: 0 0 12px 3px #1e90ff;
 }
 
 .border-rare {
-  box-shadow: 0 0 12px 2px #ffa500;
+  box-shadow: 0 0 12px 3px #ffa500;
 }
 
 .border-legendary {
-  box-shadow: 0 0 15px 3px gold;
+  box-shadow: 0 0 20px 5px gold;
   animation: legendary-glow 1.6s ease-in-out infinite;
   transform-origin: center;
-  border: 3px solid gold;
+  border: 4px solid gold;
   z-index: 3;
 }
 
 @keyframes legendary-glow {
-  0% {
-    box-shadow: 0 0 15px 3px gold;
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 30px 8px orange;
-    transform: scale(1.05);
-  }
-  100% {
-    box-shadow: 0 0 15px 3px gold;
-    transform: scale(1);
-  }
+  0% { box-shadow: 0 0 20px 4px gold; transform: scale(1); }
+  50% { box-shadow: 0 0 40px 10px orange; transform: scale(1.05); }
+  100% { box-shadow: 0 0 20px 4px gold; transform: scale(1); }
 }
 
 @keyframes flipIn {
@@ -106,28 +103,28 @@ body {
 /* "New!" Badge */
 .new-unlock {
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 8px;
+  left: 8px;
   background: crimson;
   color: white;
-  font-size: 12px;
-  padding: 3px 6px;
-  border-radius: 4px;
+  font-size: 16px;
+  padding: 5px 8px;
+  border-radius: 5px;
   z-index: 2;
 }
 
 /* Toast Message */
 #toast {
   position: fixed;
-  bottom: 40px;
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #111;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 14px 26px;
+  border-radius: 6px;
   opacity: 0;
   color: white;
-  font-size: 16px;
+  font-size: 18px;
   z-index: 999;
   transition: opacity 0.5s ease;
 }
@@ -138,20 +135,20 @@ body {
 
 /* Countdown Text */
 #countdown {
-  margin-top: 10px;
-  font-size: 16px;
+  margin-top: 25px;
+  font-size: 20px;
   color: #ccc;
 }
 
 /* Close Button */
 #closeBtn {
-  margin-top: 30px;
-  padding: 10px 20px;
-  font-size: 16px;
+  margin-top: 16px;
+  padding: 12px 26px;
+  font-size: 20px;
   background: #2e8b57;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
