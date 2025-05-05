@@ -72,7 +72,7 @@ async function renderPackReveal() {
       countdown.textContent = `Closing in ${seconds}s...`;
       if (seconds <= 0) {
         clearInterval(timer);
-        window.close(); // Closes the window or tab
+        window.location.href = 'https://madv313.github.io/Card-Collection-UI/';
       }
     }, 1000);
 
