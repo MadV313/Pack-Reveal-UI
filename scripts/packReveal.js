@@ -4,13 +4,15 @@ const rarityClasses = {
   Common: 'border-common',
   Uncommon: 'border-uncommon',
   Rare: 'border-rare',
-  Legendary: 'border-legendary'
+  Legendary: 'border-legendary' // Will now glow and pulse via CSS
 };
 
-function renderPackReveal(cards) {
+function renderPackReveal(data) {
   const container = document.getElementById('card-reveal-container');
   const toast = document.getElementById('toast-message');
   let newUnlockShown = false;
+
+  const cards = data.cards;
 
   cards.forEach((card, index) => {
     const cardDiv = document.createElement('div');
@@ -27,12 +29,12 @@ function renderPackReveal(cards) {
       cardBack.classList.add('flip-out');
 
       const faceImg = document.createElement('img');
-      faceImg.src = `images/cards/${card.cardId}.png`;
+      faceImg.src = `images/cards/${card.filename}`;
       faceImg.className = `card-img ${rarityClasses[card.rarity] || ''}`;
       cardDiv.appendChild(faceImg);
 
-      if (card.isNew && !newUnlockShown) {
-        toast.textContent = 'New card unlocked!';
+      if (card.newUnlock && !newUnlockShown) {
+        toast.textContent = `New card unlocked: ${card.cardId}`;
         toast.style.opacity = 1;
         newUnlockShown = true;
         setTimeout(() => (toast.style.opacity = 0), 3000);
@@ -40,9 +42,8 @@ function renderPackReveal(cards) {
     }, 1000 * (index + 1));
   });
 
-  // Timer countdown
   const countdown = document.getElementById('countdown');
-  let seconds = 10;
+  let seconds = data.autoCloseIn || 10;
   countdown.textContent = `Closing in ${seconds}s`;
 
   const timer = setInterval(() => {
@@ -50,7 +51,7 @@ function renderPackReveal(cards) {
     countdown.textContent = `Closing in ${seconds}s`;
     if (seconds <= 0) {
       clearInterval(timer);
-      window.location.href = '/collection.html'; // or your target route
+      window.location.href = '/collection.html';
     }
   }, 1000);
 }
