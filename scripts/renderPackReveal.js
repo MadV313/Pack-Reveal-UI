@@ -1,84 +1,64 @@
-// scripts/renderPackReveal.js
+const packPath = '/data/mockPackReveal.json'; // Adjust if located elsewhere
 
-async function renderPackReveal() {
-  const container = document.getElementById('cardContainer');
-  const toast = document.getElementById('toast');
-  const countdown = document.getElementById('countdown');
-  const closeBtn = document.getElementById('closeBtn');
-  const title = document.getElementById('reveal-title');
+const rarityClasses = {
+  Common: 'border-common',
+  Uncommon: 'border-uncommon',
+  Rare: 'border-rare',
+  Legendary: 'border-legendary' // Will now glow and pulse via CSS
+};
 
-  try {
-    const res = await fetch('data/mock_pack_reveal.json');
-    const data = await res.json();
+function renderPackReveal(data) {
+  const container = document.getElementById('card-reveal-container');
+  const toast = document.getElementById('toast-message');
+  let newUnlockShown = false;
 
-    title.textContent = data.title || 'New Card Pack Unlocked!';
-    let delay = 0;
+  const cards = data.cards;
 
-    data.cards.forEach((card, index) => {
-      const cardDiv = document.createElement('div');
-      cardDiv.classList.add('card-slot');
-      cardDiv.style.animationDelay = `${index * 1}s`;
+  cards.forEach((card, index) => {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'card-slot slide-in';
+    cardDiv.style.animationDelay = ${index * 1}s;
 
-      // Card back image
-      const cardBack = document.createElement('img');
-      cardBack.src = 'images/cards/000_CardBack_Unique.png';
-      cardBack.className = 'card-img card-back';
-      cardDiv.appendChild(cardBack);
+    const cardBack = document.createElement('img');
+    cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
+    cardBack.className = 'card-img card-back';
+    cardDiv.appendChild(cardBack);
+    container.appendChild(cardDiv);
 
-      // Card face image, starts hidden
+    setTimeout(() => {
+      cardBack.classList.add('flip-out');
+
       const faceImg = document.createElement('img');
-      faceImg.src = `images/cards/${card.filename}`;
-      faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
-      faceImg.style.opacity = '0';
-      faceImg.style.transform = 'rotateY(90deg)';
-      faceImg.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      faceImg.src = images/cards/${card.filename};
+      faceImg.className = card-img ${rarityClasses[card.rarity] || ''};
       cardDiv.appendChild(faceImg);
 
-      container.appendChild(cardDiv);
-
-      // Flip animation timing
-      setTimeout(() => {
-        cardBack.classList.add('flip-out');
-
-        setTimeout(() => {
-          faceImg.style.opacity = '1';
-          faceImg.style.transform = 'rotateY(0deg)';
-        }, 600); // Slight delay after back flip-out
-        
-
-        // New unlock badge and toast
-        if (card.newUnlock) {
-          const badge = document.createElement('span');
-          badge.classList.add('new-unlock');
-          badge.textContent = 'New!';
-          cardDiv.appendChild(badge);
-
-          toast.textContent = `New card unlocked: ${card.cardId}`;
-          toast.classList.add('show');
-          setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-      }, 1000 * (index + 1));
-    });
-
-    // Countdown
-    let seconds = data.autoCloseIn || 10;
-    countdown.textContent = `Closing in ${seconds}s...`;
-
-    const timer = setInterval(() => {
-      seconds--;
-      countdown.textContent = `Closing in ${seconds}s...`;
-      if (seconds <= 0) {
-        clearInterval(timer);
-        window.location.href = 'index.html';
+      if (card.newUnlock && !newUnlockShown) {
+        toast.textContent = New card unlocked: ${card.cardId};
+        toast.style.opacity = 1;
+        newUnlockShown = true;
+        setTimeout(() => (toast.style.opacity = 0), 3000);
       }
-    }, 1000);
+    }, 1000 * (index + 1));
+  });
 
-    closeBtn.onclick = () => window.location.href = 'index.html';
+  const countdown = document.getElementById('countdown');
+  let seconds = data.autoCloseIn || 10;
+  countdown.textContent = Closing in ${seconds}s;
 
-  } catch (err) {
-    console.error('Pack reveal load failed:', err);
-    title.textContent = 'Failed to load card pack.';
-  }
+  const timer = setInterval(() => {
+    seconds--;
+    countdown.textContent = Closing in ${seconds}s;
+    if (seconds <= 0) {
+      clearInterval(timer);
+      window.location.href = '/collection.html';
+    }
+  }, 1000);
 }
 
-window.renderPackReveal = renderPackReveal;
+fetch(packPath)
+  .then(res => res.json())
+  .then(data => renderPackReveal(data))
+  .catch(err => {
+    console.error("Failed to load pack reveal data:", err);
+    document.getElementById('spectator-status').textContent = 'Error loading pack.';
