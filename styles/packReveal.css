@@ -71,13 +71,26 @@ body {
 }
 
 .border-legendary {
-  box-shadow: 0 0 20px 4px gold;
-  animation: glow 1.5s infinite alternate;
+  box-shadow: 0 0 15px 3px gold;
+  animation: legendary-glow 1.6s ease-in-out infinite;
+  transform-origin: center;
+  border: 3px solid gold;
+  z-index: 3;
 }
 
-@keyframes glow {
-  0% { box-shadow: 0 0 15px 3px gold; }
-  100% { box-shadow: 0 0 25px 6px orange; }
+@keyframes legendary-glow {
+  0% {
+    box-shadow: 0 0 15px 3px gold;
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px 8px orange;
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 15px 3px gold;
+    transform: scale(1);
+  }
 }
 
 @keyframes flipIn {
