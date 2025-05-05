@@ -25,27 +25,28 @@ async function renderPackReveal() {
       cardBack.className = 'card-img card-back';
       cardDiv.appendChild(cardBack);
 
-      // Card face image (hidden initially)
+      // Card face image, starts hidden
       const faceImg = document.createElement('img');
       faceImg.src = `images/cards/${card.filename}`;
       faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
-      faceImg.style.opacity = '0'; // Start hidden
+      faceImg.style.opacity = '0';
       faceImg.style.transform = 'rotateY(90deg)';
+      faceImg.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
       cardDiv.appendChild(faceImg);
 
       container.appendChild(cardDiv);
 
-      // Reveal logic
+      // Flip animation timing
       setTimeout(() => {
         cardBack.classList.add('flip-out');
 
         setTimeout(() => {
-          faceImg.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
           faceImg.style.opacity = '1';
           faceImg.style.transform = 'rotateY(0deg)';
-        }, 300); // Halfway through flip-out for timing sync
+        }, 600); // Slight delay after back flip-out
+        
 
-        // "New!" badge + toast
+        // New unlock badge and toast
         if (card.newUnlock) {
           const badge = document.createElement('span');
           badge.classList.add('new-unlock');
@@ -59,7 +60,7 @@ async function renderPackReveal() {
       }, 1000 * (index + 1));
     });
 
-    // Countdown logic
+    // Countdown
     let seconds = data.autoCloseIn || 10;
     countdown.textContent = `Closing in ${seconds}s...`;
 
