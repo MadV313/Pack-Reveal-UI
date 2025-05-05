@@ -72,11 +72,11 @@ async function renderPackReveal() {
       countdown.textContent = `Closing in ${seconds}s...`;
       if (seconds <= 0) {
         clearInterval(timer);
-        window.location.href = 'index.html';
+        window.location.href = 'https://discord.gg/3Mdx2Uyutv';
       }
     }, 1000);
 
-    closeBtn.onclick = () => window.location.href = 'index.html';
+    closeBtn.onclick = () => window.location.href = 'https://discord.gg/3Mdx2Uyutv';
 
   } catch (err) {
     console.error('Pack reveal load failed:', err);
