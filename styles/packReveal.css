@@ -1,88 +1,148 @@
-// scripts/renderPackReveal.js
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  color: white;
+  text-align: center;
+  background: url('../images/backgrounds/pack_reveal_bg.png') no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden;
 
-async function renderPackReveal() {
-  const container = document.getElementById('cardContainer');
-  const toast = document.getElementById('toast');
-  const countdown = document.getElementById('countdown');
-  const closeBtn = document.getElementById('closeBtn');
-  const title = document.getElementById('reveal-title');
-
-  try {
-    const res = await fetch('data/mock_pack_reveal.json');
-    const data = await res.json();
-
-    title.textContent = data.title || 'New Card Pack Unlocked!';
-    let delay = 0;
-
-    data.cards.forEach((card, index) => {
-      const cardDiv = document.createElement('div');
-      cardDiv.classList.add('card-slot');
-      cardDiv.style.animationDelay = `${index * 1}s`;
-
-      // Card back image
-      const cardBack = document.createElement('img');
-      cardBack.src = 'images/cards/000_CardBack_Unique.png';
-      cardBack.className = 'card-img card-back';
-      cardDiv.appendChild(cardBack);
-
-      // Card face image, starts hidden
-      const faceImg = document.createElement('img');
-      faceImg.src = `images/cards/${card.filename}`;
-      faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
-      faceImg.style.opacity = '0';
-      faceImg.style.transform = 'rotateY(90deg)';
-      faceImg.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
-      cardDiv.appendChild(faceImg);
-
-      container.appendChild(cardDiv);
-
-      // Flip animation timing
-      setTimeout(() => {
-        cardBack.classList.add('flip-out');
-
-        setTimeout(() => {
-          faceImg.style.opacity = '1';
-          faceImg.style.transform = 'rotateY(0deg)';
-        }, 600); // Slight delay after back flip-out
-
-        // New unlock badge and toast
-        if (card.newUnlock) {
-          const badge = document.createElement('span');
-          badge.classList.add('new-unlock');
-          badge.textContent = 'New!';
-          cardDiv.appendChild(badge);
-
-          toast.textContent = `New card unlocked: ${card.cardId}`;
-          toast.classList.add('show');
-
-          const isLast = index === data.cards.length - 1;
-          const toastDuration = isLast ? 3000 : 1500;
-
-          setTimeout(() => toast.classList.remove('show'), toastDuration);
-        }
-      }, 1000 * (index + 1));
-    });
-
-    // Countdown timer
-    let seconds = data.autoCloseIn || 10;
-    countdown.textContent = `Closing in ${seconds}s...`;
-
-    const timer = setInterval(() => {
-      seconds--;
-      countdown.textContent = `Closing in ${seconds}s...`;
-      if (seconds <= 0) {
-        clearInterval(timer);
-        window.location.href = 'index.html';
-      }
-    }, 1000);
-
-    // Close button
-    closeBtn.onclick = () => window.location.href = 'index.html';
-
-  } catch (err) {
-    console.error('Pack reveal load failed:', err);
-    title.textContent = 'Failed to load card pack.';
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
-window.renderPackReveal = renderPackReveal;
+#background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  filter: brightness(0.5);
+}
+
+#reveal-title {
+  font-size: 60px;
+  margin: 40px 0 10px;
+  text-shadow: 0 0 16px rgba(255,255,255,0.95);
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin: 20px 0;
+  padding: 20px;
+}
+
+.card-slot {
+  position: relative;
+  width: 200px;
+  height: 290px;
+  perspective: 1000px;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 0.6s ease;
+}
+
+.card-back {
+  transform: rotateY(0deg);
+}
+
+.card-back.flip-out {
+  transform: rotateY(90deg);
+}
+
+/* Border Glow by Rarity */
+.border-common {
+  box-shadow: 0 0 24px 6px #32cd32;
+}
+
+.border-uncommon {
+  box-shadow: 0 0 24px 6px #1e90ff;
+}
+
+.border-rare {
+  box-shadow: 0 0 24px 6px #ffa500;
+}
+
+.border-legendary {
+  box-shadow: 0 0 36px 10px gold;
+  animation: legendary-glow 1.6s ease-in-out infinite;
+  transform-origin: center;
+  border: 6px solid gold;
+  z-index: 3;
+}
+
+@keyframes legendary-glow {
+  0% { box-shadow: 0 0 36px 10px gold; transform: scale(1); }
+  50% { box-shadow: 0 0 60px 18px orange; transform: scale(1.07); }
+  100% { box-shadow: 0 0 36px 10px gold; transform: scale(1); }
+}
+
+/* "New!" Badge */
+.new-unlock {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: crimson;
+  color: white;
+  font-size: 22px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 2;
+}
+
+/* Toast Message (below cards, above button) */
+#toast {
+  margin-top: 20px;
+  background-color: #111;
+  padding: 16px 30px;
+  border-radius: 6px;
+  opacity: 0;
+  color: white;
+  font-size: 20px;
+  z-index: 999;
+  transition: opacity 0.5s ease;
+}
+
+#toast.show {
+  opacity: 1;
+}
+
+/* Countdown Timer (fixed at bottom) */
+#countdown {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: #ccc;
+}
+
+/* Close Button */
+#closeBtn {
+  margin-top: 20px;
+  padding: 16px 34px;
+  font-size: 22px;
+  background: #2e8b57;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#closeBtn:hover {
+  background: #3cb371;
+}
