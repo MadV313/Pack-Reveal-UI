@@ -8,7 +8,7 @@ async function renderPackReveal() {
   const title = document.getElementById('reveal-title');
 
   try {
-    const res = await fetch('data/mock_reveal_payload.json');
+    const res = await fetch('data/mock_pack_reveal.json'); // Corrected fetch path
     const data = await res.json();
 
     title.textContent = data.title || 'New Card Pack Unlocked!';
@@ -19,7 +19,7 @@ async function renderPackReveal() {
       cardDiv.classList.add('card-slot');
 
       const cardBack = document.createElement('img');
-      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
+      cardBack.src = 'images/backgrounds/cards/000_CardBack_Unique.png'; // Updated to match actual path
       cardBack.className = 'card-img card-back';
       cardDiv.appendChild(cardBack);
       container.appendChild(cardDiv);
@@ -28,7 +28,7 @@ async function renderPackReveal() {
         cardBack.classList.add('flip-out');
 
         const faceImg = document.createElement('img');
-        faceImg.src = `images/cards/${card.cardId}.png`;
+        faceImg.src = `images/backgrounds/cards/${card.cardId}.png`; // Adjusted to full path
         faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
         cardDiv.appendChild(faceImg);
 
