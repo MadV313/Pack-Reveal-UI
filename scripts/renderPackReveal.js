@@ -19,21 +19,31 @@ async function renderPackReveal() {
       cardDiv.classList.add('card-slot');
       cardDiv.style.animationDelay = `${index * 1}s`;
 
-      // Card back image (corrected path)
+      // Card back image
       const cardBack = document.createElement('img');
       cardBack.src = 'images/cards/000_CardBack_Unique.png';
       cardBack.className = 'card-img card-back';
       cardDiv.appendChild(cardBack);
+
+      // Card face image (hidden initially)
+      const faceImg = document.createElement('img');
+      faceImg.src = `images/cards/${card.filename}`;
+      faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
+      faceImg.style.opacity = '0'; // Start hidden
+      faceImg.style.transform = 'rotateY(90deg)';
+      cardDiv.appendChild(faceImg);
+
       container.appendChild(cardDiv);
 
-      // Flip to face image
+      // Reveal logic
       setTimeout(() => {
         cardBack.classList.add('flip-out');
 
-        const faceImg = document.createElement('img');
-        faceImg.src = `images/cards/${card.filename}`;
-        faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
-        cardDiv.appendChild(faceImg);
+        setTimeout(() => {
+          faceImg.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+          faceImg.style.opacity = '1';
+          faceImg.style.transform = 'rotateY(0deg)';
+        }, 300); // Halfway through flip-out for timing sync
 
         // "New!" badge + toast
         if (card.newUnlock) {
@@ -49,7 +59,7 @@ async function renderPackReveal() {
       }, 1000 * (index + 1));
     });
 
-    // Countdown timer
+    // Countdown logic
     let seconds = data.autoCloseIn || 10;
     countdown.textContent = `Closing in ${seconds}s...`;
 
@@ -62,7 +72,6 @@ async function renderPackReveal() {
       }
     }, 1000);
 
-    // Manual close
     closeBtn.onclick = () => window.location.href = 'index.html';
 
   } catch (err) {
@@ -71,5 +80,4 @@ async function renderPackReveal() {
   }
 }
 
-// Expose globally
 window.renderPackReveal = renderPackReveal;
