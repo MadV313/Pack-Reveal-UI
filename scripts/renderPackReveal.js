@@ -8,7 +8,7 @@ async function renderPackReveal() {
   const title = document.getElementById('reveal-title');
 
   try {
-    const res = await fetch('data/mock_pack_reveal.json'); // Corrected fetch path
+    const res = await fetch('data/mock_pack_reveal.json');
     const data = await res.json();
 
     title.textContent = data.title || 'New Card Pack Unlocked!';
@@ -17,21 +17,25 @@ async function renderPackReveal() {
     data.cards.forEach((card, index) => {
       const cardDiv = document.createElement('div');
       cardDiv.classList.add('card-slot');
+      cardDiv.style.animationDelay = `${index * 1}s`;
 
+      // Card back
       const cardBack = document.createElement('img');
-      cardBack.src = 'images/backgrounds/cards/000_CardBack_Unique.png'; // Updated to match actual path
+      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
       cardBack.className = 'card-img card-back';
       cardDiv.appendChild(cardBack);
       container.appendChild(cardDiv);
 
+      // Flip to face
       setTimeout(() => {
         cardBack.classList.add('flip-out');
 
         const faceImg = document.createElement('img');
-        faceImg.src = `images/backgrounds/cards/${card.cardId}.png`; // Adjusted to full path
+        faceImg.src = `images/cards/${card.filename}`;
         faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
         cardDiv.appendChild(faceImg);
 
+        // "New!" badge + toast
         if (card.newUnlock) {
           const badge = document.createElement('span');
           badge.classList.add('new-unlock');
@@ -45,6 +49,7 @@ async function renderPackReveal() {
       }, 1000 * (index + 1));
     });
 
+    // Countdown
     let seconds = data.autoCloseIn || 10;
     countdown.textContent = `Closing in ${seconds}s...`;
 
@@ -65,5 +70,4 @@ async function renderPackReveal() {
   }
 }
 
-// Expose globally
 window.renderPackReveal = renderPackReveal;
