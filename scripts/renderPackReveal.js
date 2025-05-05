@@ -19,14 +19,14 @@ async function renderPackReveal() {
       cardDiv.classList.add('card-slot');
       cardDiv.style.animationDelay = `${index * 1}s`;
 
-      // Card back
+      // Card back image (corrected path)
       const cardBack = document.createElement('img');
-      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
+      cardBack.src = 'images/cards/000_CardBack_Unique.png';
       cardBack.className = 'card-img card-back';
       cardDiv.appendChild(cardBack);
       container.appendChild(cardDiv);
 
-      // Flip to face
+      // Flip to face image
       setTimeout(() => {
         cardBack.classList.add('flip-out');
 
@@ -49,7 +49,7 @@ async function renderPackReveal() {
       }, 1000 * (index + 1));
     });
 
-    // Countdown
+    // Countdown timer
     let seconds = data.autoCloseIn || 10;
     countdown.textContent = `Closing in ${seconds}s...`;
 
@@ -62,6 +62,7 @@ async function renderPackReveal() {
       }
     }, 1000);
 
+    // Manual close
     closeBtn.onclick = () => window.location.href = 'index.html';
 
   } catch (err) {
@@ -70,4 +71,5 @@ async function renderPackReveal() {
   }
 }
 
+// Expose globally
 window.renderPackReveal = renderPackReveal;
