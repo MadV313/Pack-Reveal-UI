@@ -24,9 +24,9 @@ body {
 }
 
 #reveal-title {
-  font-size: 52px;
-  margin: 30px 0 10px;
-  text-shadow: 0 0 12px rgba(255,255,255,0.9);
+  font-size: 60px;
+  margin: 40px 0 10px;
+  text-shadow: 0 0 16px rgba(255,255,255,0.95);
 }
 
 .card-container {
@@ -65,41 +65,42 @@ body {
 
 /* Border Glow by Rarity */
 .border-common {
-  box-shadow: 0 0 20px 4px #32cd32;
+  box-shadow: 0 0 24px 6px #32cd32;
 }
 
 .border-uncommon {
-  box-shadow: 0 0 20px 4px #1e90ff;
+  box-shadow: 0 0 24px 6px #1e90ff;
 }
 
 .border-rare {
-  box-shadow: 0 0 20px 4px #ffa500;
+  box-shadow: 0 0 24px 6px #ffa500;
 }
 
 .border-legendary {
-  box-shadow: 0 0 30px 6px gold;
+  box-shadow: 0 0 36px 10px gold;
   animation: legendary-glow 1.6s ease-in-out infinite;
   transform-origin: center;
-  border: 5px solid gold;
+  border: 6px solid gold;
   z-index: 3;
 }
 
 @keyframes legendary-glow {
-  0% { box-shadow: 0 0 30px 5px gold; transform: scale(1); }
-  50% { box-shadow: 0 0 50px 12px orange; transform: scale(1.06); }
-  100% { box-shadow: 0 0 30px 5px gold; transform: scale(1); }
+  0% { box-shadow: 0 0 36px 10px gold; transform: scale(1); }
+  50% { box-shadow: 0 0 60px 18px orange; transform: scale(1.07); }
+  100% { box-shadow: 0 0 36px 10px gold; transform: scale(1); }
 }
 
 /* "New!" Badge */
 .new-unlock {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 12px;
+  left: 12px;
   background: crimson;
   color: white;
-  font-size: 18px;
-  padding: 6px 10px;
-  border-radius: 6px;
+  font-size: 22px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: bold;
   z-index: 2;
 }
 
