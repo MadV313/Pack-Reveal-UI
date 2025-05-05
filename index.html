@@ -16,8 +16,9 @@
   <p id="countdown"></p>
   <button id="closeBtn">Leave</button>
 
-  <script type="module">
-    import { renderPackReveal } from './scripts/renderPackReveal.js';
+  <!-- Load script without module type -->
+  <script src="scripts/renderPackReveal.js"></script>
+  <script>
     renderPackReveal();
   </script>
 </body>
