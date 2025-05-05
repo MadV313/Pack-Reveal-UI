@@ -1,4 +1,6 @@
-export async function renderPackReveal() {
+// scripts/renderPackReveal.js
+
+async function renderPackReveal() {
   const container = document.getElementById('cardContainer');
   const toast = document.getElementById('toast');
   const countdown = document.getElementById('countdown');
@@ -51,7 +53,7 @@ export async function renderPackReveal() {
       countdown.textContent = `Closing in ${seconds}s...`;
       if (seconds <= 0) {
         clearInterval(timer);
-        window.location.href = 'index.html'; // Adjust to real return page if needed
+        window.location.href = 'index.html';
       }
     }, 1000);
 
@@ -62,3 +64,6 @@ export async function renderPackReveal() {
     title.textContent = 'Failed to load card pack.';
   }
 }
+
+// Expose globally
+window.renderPackReveal = renderPackReveal;
