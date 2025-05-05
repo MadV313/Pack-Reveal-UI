@@ -104,12 +104,9 @@ body {
   z-index: 2;
 }
 
-/* Toast Message (now above center) */
+/* Toast Message (below cards, above button) */
 #toast {
-  position: fixed;
-  top: 100px;
-  left: 50%;
-  transform: translateX(-50%);
+  margin-top: 20px;
   background-color: #111;
   padding: 16px 30px;
   border-radius: 6px;
@@ -124,7 +121,7 @@ body {
   opacity: 1;
 }
 
-/* Countdown Timer (now at bottom) */
+/* Countdown Timer (fixed at bottom) */
 #countdown {
   position: fixed;
   bottom: 40px;
