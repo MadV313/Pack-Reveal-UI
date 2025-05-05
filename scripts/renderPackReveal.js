@@ -44,7 +44,6 @@ async function renderPackReveal() {
           faceImg.style.opacity = '1';
           faceImg.style.transform = 'rotateY(0deg)';
         }, 600); // Slight delay after back flip-out
-        
 
         // New unlock badge and toast
         if (card.newUnlock) {
@@ -55,7 +54,11 @@ async function renderPackReveal() {
 
           toast.textContent = `New card unlocked: ${card.cardId}`;
           toast.classList.add('show');
-          setTimeout(() => toast.classList.remove('show'), 3000);
+
+          const isLastCard = index === data.cards.length - 1;
+          const toastDuration = isLastCard ? 3000 : 1500;
+
+          setTimeout(() => toast.classList.remove('show'), toastDuration);
         }
       }, 1000 * (index + 1));
     });
