@@ -1,0 +1,24 @@
+{
+  "title": "New Card Pack Unlocked!",
+  "autoCloseIn": 10,
+  "cards": [
+    {
+      "cardId": "006",
+      "rarity": "Common",
+      "newUnlock": true,
+      "filename": "006_CR550Savanna_Attack.png"
+    },
+    {
+      "cardId": "086",
+      "rarity": "Common",
+      "newUnlock": false,
+      "filename": "086_Battery_Loot.png"
+    },
+    {
+      "cardId": "109",
+      "rarity": "Common",
+      "newUnlock": true,
+      "filename": "109_MakeshiftCharge_Trap.png"
+    }
+  ]
+}
