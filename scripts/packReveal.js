@@ -71,7 +71,7 @@ function packReveal() {
         flipQueue.forEach((fn) => fn());
       }, 3000);
 
-      let countdown = 20;
+      let countdown = 15;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
         if (countdown < 0) {
