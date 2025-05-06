@@ -7,21 +7,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   const toast = document.getElementById('toast');
 
   try {
-    // Fetch the actual card data from the backend route /packReveal
-    const res = await fetch('/packReveal');  // Corrected the path here
-    const cards = await res.json();
+    let cards;
 
-    // Display the cards
+    const res = await fetch('/packReveal');
+    if (res.ok) {
+      cards = await res.json();
+    } else {
+      console.warn('Backend not available, using mock pack');
+      cards = generateMockPack();
+    }
+
     cards.forEach((card, i) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'card-wrapper';
 
       const cardBack = document.createElement('img');
-      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';  // Assuming the back image is static
+      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
       cardBack.className = 'card back';
 
       const cardFront = document.createElement('img');
-      cardFront.src = `images/cards/${card.filename}`;  // Fetch the front image from the /images/cards directory
+      cardFront.src = `images/cards/${card.filename}`;
       cardFront.className = `card front rarity-${card.rarity.toLowerCase()}`;
 
       if (card.isNew) {
@@ -40,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (card.isNew) {
           showToast(`New card unlocked: ${card.name}`);
         }
-      }, 1000 + i * 1000); // staggered reveal
+      }, 1000 + i * 1000);
     });
 
     let countdown = 10;
@@ -67,45 +72,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => toast.classList.remove('show'), 2500);
   }
 
-  // Generate mock cards with randomized rarity and random "new card" status
-  async function generateMockCards() {
-    const res = await fetch('/path/to/CoreMasterReference.json');  // Assuming data is available
-    const data = await res.json();
+  function generateMockPack() {
+    const allCards = [
+      { card_id: "#017", name: "USG-45", rarity: "Rare", filename: "017_USG45_Attack.png", isNew: Math.random() < 0.5 },
+      { card_id: "#126", name: "Lt. Col. Emil Borén", rarity: "Legendary", filename: "126_Lt.Col.EmilBorén_Specialty.png", isNew: Math.random() < 0.5 },
+      { card_id: "#001", name: "M4-A1", rarity: "Rare", filename: "001_M4A1_Attack.png", isNew: Math.random() < 0.5 },
+      { card_id: "#061", name: "Binoculars", rarity: "Rare", filename: "061_Binoculars_Tactical.png", isNew: Math.random() < 0.5 },
+      { card_id: "#042", name: "Tactical Shirt", rarity: "Common", filename: "042_TacticalShirt_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#079", name: "Box of Nails", rarity: "Rare", filename: "079_BoxofNails_Loot.png", isNew: Math.random() < 0.5 },
+      { card_id: "#077", name: "MRE", rarity: "Common", filename: "077_MRE_Loot.png", isNew: Math.random() < 0.5 },
+      { card_id: "#023", name: "AK-74", rarity: "Rare", filename: "023_AK74_Attack.png", isNew: Math.random() < 0.5 },
+      { card_id: "#032", name: "Ballistic Helmet", rarity: "Uncommon", filename: "032_BallisticHelmet_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#033", name: "Assault Helmet", rarity: "Uncommon", filename: "033_AssaultHelmet_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#114", name: "Explosive Grenade Trap", rarity: "Common", filename: "114_ExplosiveGrenadeTrap_Trap.png", isNew: Math.random() < 0.5 },
+      { card_id: "#110", name: "Perimeter Trap", rarity: "Common", filename: "110_PerimeterTrap_Trap.png", isNew: Math.random() < 0.5 },
+      { card_id: "#047", name: "Riders Jacket", rarity: "Rare", filename: "047_RidersJacket_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#125", name: "Elena Kovak", rarity: "Legendary", filename: "125_ElenaKovak_Specialty.png", isNew: Math.random() < 0.5 },
+      { card_id: "#058", name: "Boonie Hat", rarity: "Rare", filename: "058_BoonieHat_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#096", name: "Hazmat Infected", rarity: "Uncommon", filename: "096_HazmatInfected_Infected.png", isNew: Math.random() < 0.5 },
+      { card_id: "#098", name: "Hunter Infected", rarity: "Uncommon", filename: "098_HunterInfected_Infected.png", isNew: Math.random() < 0.5 },
+      { card_id: "#043", name: "Paramedic Jacket", rarity: "Uncommon", filename: "043_ParamedicJacket_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#045", name: "Firefighter Pants", rarity: "Common", filename: "045_FirefighterPants_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#083", name: "Box of Ammo", rarity: "Common", filename: "083_BoxofAmmo_Loot.png", isNew: Math.random() < 0.5 },
+      { card_id: "#036", name: "NBC Suit", rarity: "Common", filename: "036_NBCSuit_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#108", name: "Landmine", rarity: "Rare", filename: "108_Landmine_Trap.png", isNew: Math.random() < 0.5 },
+      { card_id: "#081", name: "Dynamite", rarity: "Rare", filename: "081_Dynamite_Loot.png", isNew: Math.random() < 0.5 },
+      { card_id: "#019", name: "KA-74", rarity: "Uncommon", filename: "019_KA74_Attack.png", isNew: Math.random() < 0.5 },
+      { card_id: "#000", name: "WinterLand Death Deck (Face-Down)", rarity: "Unique", filename: "000_WinterlandDeathDeck_Back.png", isNew: Math.random() < 0.5 },
+      { card_id: "#049", name: "Tracksuit Jacket", rarity: "Uncommon", filename: "049_TracksuitJacket_Defense.png", isNew: Math.random() < 0.5 },
+      { card_id: "#066", name: "Headtorch", rarity: "Rare", filename: "066_Headtorch_Tactical.png", isNew: Math.random() < 0.5 },
+      { card_id: "#025", name: "SG5-K", rarity: "Common", filename: "025_SG5K_Attack.png", isNew: Math.random() < 0.5 },
+      { card_id: "#089", name: "Sewing Kit", rarity: "Rare", filename: "089_SewingKit_Loot.png", isNew: Math.random() < 0.5 },
+      { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png", isNew: Math.random() < 0.5 }
+    ];
 
-    const rarityWeights = {
-      Common: 5,
-      Uncommon: 3,
-      Rare: 2,
-      Legendary: 1
-    };
-
-    const allCards = data.filter(card => card.card_id !== '000');  // Exclude placeholder cards
-
-    const weightedPool = [];
-    allCards.forEach(card => {
-      const weight = rarityWeights[card.rarity] || 1;
-      for (let i = 0; i < weight; i++) {
-        weightedPool.push(card);  // Push full card object
-      }
-    });
-
-    for (let i = weightedPool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [weightedPool[i], weightedPool[j]] = [weightedPool[j], weightedPool[i]];  // Shuffle
-    }
-
-    // Randomly mark cards as "new"
-    const cardsToReturn = weightedPool.slice(0, 3);  // Always return 3 random cards for mock pack
-    cardsToReturn.forEach(card => {
-      card.isNew = Math.random() < 0.5;  // Randomly set isNew to true for about 50% of the cards
-    });
-
-    // Ensure the card image is from /images/cards and the filename is correct
-    cardsToReturn.forEach(card => {
-      card.filename = `${card.card_id}.png`;  // Assuming the filename is based on card_id
-    });
-
-    return cardsToReturn;
+    return [
+      allCards[Math.floor(Math.random() * allCards.length)],
+      allCards[Math.floor(Math.random() * allCards.length)],
+      allCards[Math.floor(Math.random() * allCards.length)]
+    ];
   }
-
 });
