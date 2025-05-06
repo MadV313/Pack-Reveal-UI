@@ -15,6 +15,9 @@ function packReveal() {
       cards = generateMockPack();
     })
     .finally(() => {
+      // Enforce exactly 3 cards max for UI display
+      cards = cards.slice(0, 3);
+
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
         cardSlot.className = 'card-slot';
@@ -111,7 +114,7 @@ function packReveal() {
     const selected = [];
     while (selected.length < 3) {
       const card = allCards[Math.floor(Math.random() * allCards.length)];
-      if (!selected.includes(card)) {
+      if (!selected.some(c => c.card_id === card.card_id)) {
         selected.push(card);
       }
     }
