@@ -50,7 +50,6 @@ function packReveal() {
 
         container.appendChild(cardSlot);
 
-        // Delay flip logic until after 3s drop-in animation
         flipQueue.push(() => {
           ((thisCard, thisBack, thisFront) => {
             setTimeout(() => {
@@ -66,8 +65,9 @@ function packReveal() {
         });
       });
 
-      // Wait 3 seconds for all cards to "drop in" before flipping
+      // Fade in container after drop animation completes
       setTimeout(() => {
+        container.classList.add('show');
         flipQueue.forEach((fn) => fn());
       }, 3000);
 
