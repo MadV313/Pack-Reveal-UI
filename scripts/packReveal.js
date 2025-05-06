@@ -31,7 +31,7 @@ function packReveal() {
         front.className = `card-img border-${card.rarity.toLowerCase()}`;
         front.style.opacity = '0';
         front.style.transform = 'rotateY(90deg)';
-        front.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+        front.style.transition = 'transform 0.8s ease, opacity 0.8s ease'; // Slowed flip animation
 
         cardSlot.appendChild(back);
         cardSlot.appendChild(front);
@@ -57,7 +57,7 @@ function packReveal() {
       });
 
       // Countdown logic
-      let countdown = 15;
+      let countdown = 20;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
         if (countdown < 0) {
@@ -74,7 +74,7 @@ function packReveal() {
   function showToast(message) {
     toast.textContent = message;
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+    setTimeout(() => toast.classList.remove('show'), 3500); // Extended toast duration
   }
 
   function generateMockPack() {
