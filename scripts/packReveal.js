@@ -6,7 +6,6 @@ function packReveal() {
 
   let cards;
 
-  // Try to fetch from backend, otherwise fall back to mock pack
   fetch('/packReveal')
     .then((res) => res.ok ? res.json() : Promise.reject())
     .then((data) => cards = data)
@@ -15,7 +14,7 @@ function packReveal() {
       cards = generateMockPack();
     })
     .finally(() => {
-      cards = cards.slice(0, 3); // enforce 3 cards visually
+      cards = cards.slice(0, 3);
 
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
@@ -55,7 +54,6 @@ function packReveal() {
         }, 1000 + i * 1000);
       });
 
-      // Countdown logic
       let countdown = 10;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
@@ -110,14 +108,11 @@ function packReveal() {
       { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png" }
     ];
 
-    // Pick 3 cards with possible duplicates and assign random isNew flag
-    const selected = Array.from({ length: 3 }, () => {
+    return Array.from({ length: 3 }, () => {
       const card = structuredClone(allCards[Math.floor(Math.random() * allCards.length)]);
       card.isNew = Math.random() < 0.5;
       return card;
     });
-
-    return selected;
   }
 }
 
