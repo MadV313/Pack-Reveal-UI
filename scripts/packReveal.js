@@ -11,10 +11,10 @@ function packReveal() {
     .then((data) => cards = data)
     .catch(() => {
       console.warn('Backend unavailable — using mock pack');
-      cards = generateMockPack();
+      cards = generateMockPack(); // now uses rarity weighting
     })
     .finally(() => {
-      cards = cards.slice(0, 3);
+      cards = cards.slice(0, 3); // only show 3 cards visually
 
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
@@ -54,6 +54,7 @@ function packReveal() {
         }, 1000 + i * 1000);
       });
 
+      // Countdown logic
       let countdown = 20;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
@@ -108,11 +109,29 @@ function packReveal() {
       { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png" }
     ];
 
-    return Array.from({ length: 3 }, () => {
-      const card = structuredClone(allCards[Math.floor(Math.random() * allCards.length)]);
-      card.isNew = Math.random() < 0.5;
-      return card;
-    });
+    const rarityWeights = {
+      Common: 5,
+      Uncommon: 3,
+      Rare: 2,
+      Legendary: 1
+    };
+
+    function weightedRandomCard() {
+      const pool = [];
+
+      allCards.forEach(card => {
+        const weight = rarityWeights[card.rarity] || 1;
+        for (let i = 0; i < weight; i++) {
+          pool.push(card);
+        }
+      });
+
+      const chosen = structuredClone(pool[Math.floor(Math.random() * pool.length)]);
+      chosen.isNew = Math.random() < 0.5;
+      return chosen;
+    }
+
+    return [weightedRandomCard(), weightedRandomCard(), weightedRandomCard()];
   }
 }
 
