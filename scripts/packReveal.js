@@ -9,14 +9,14 @@ function packReveal() {
   fetch('/packReveal')
     .then((res) => res.ok ? res.json() : Promise.reject())
     .then((data) => {
-      cards = data.slice(0, 3); // Ensure only 3 cards from backend
+      cards = data.slice(0, 3);
     })
     .catch(() => {
       console.warn('Backend unavailable — using mock pack');
-      cards = generateMockPack(); // already returns exactly 3
+      cards = generateMockPack();
     })
     .finally(() => {
-      container.innerHTML = ''; // Clear any previous cards
+      container.innerHTML = '';
 
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
@@ -29,6 +29,9 @@ function packReveal() {
         const front = document.createElement('img');
         front.src = `images/cards/${card.filename}`;
         front.className = `card-img ${getRarityClass(card.rarity)}`;
+        if (card.rarity.toLowerCase() === 'legendary') {
+          front.classList.add('shimmer'); // add shimmer if legendary
+        }
         front.style.opacity = '0';
         front.style.transform = 'rotateY(90deg)';
         front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
@@ -45,18 +48,19 @@ function packReveal() {
 
         container.appendChild(cardSlot);
 
-        setTimeout(() => {
-          back.classList.add('flip-out');
+        ((thisCard) => {
           setTimeout(() => {
-            front.style.opacity = '1';
-            front.style.transform = 'rotateY(0deg)';
-          }, 500);
+            back.classList.add('flip-out');
+            setTimeout(() => {
+              front.style.opacity = '1';
+              front.style.transform = 'rotateY(0deg)';
+            }, 500);
 
-          if (card.isNew) showToast(`New card unlocked: ${card.name}`);
-        }, 1000 + i * 1000);
+            if (thisCard.isNew) showToast(`New card unlocked: ${thisCard.name}`);
+          }, 1000 + i * 1000);
+        })(card);
       });
 
-      // Countdown timer
       let countdown = 20;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
