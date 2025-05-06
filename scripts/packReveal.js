@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const toast = document.getElementById('toast');
 
   try {
-    // Fetch the actual card data from the backend route /cards/revealPack
-    const res = await fetch('/cards/revealPack'); // Fetching from backend API
+    // Fetch the actual card data from the backend route /packReveal
+    const res = await fetch('/packReveal');  // Corrected the path here
     const cards = await res.json();
 
     // Display the cards
