@@ -8,13 +8,15 @@ function packReveal() {
 
   fetch('/packReveal')
     .then((res) => res.ok ? res.json() : Promise.reject())
-    .then((data) => cards = data)
+    .then((data) => {
+      cards = data.slice(0, 3); // Ensure only 3 cards from backend
+    })
     .catch(() => {
       console.warn('Backend unavailable — using mock pack');
-      cards = generateMockPack(); // now uses rarity weighting
+      cards = generateMockPack(); // already returns exactly 3
     })
     .finally(() => {
-      cards = cards.slice(0, 3); // only show 3 cards visually
+      container.innerHTML = ''; // Clear existing slots to avoid overflow
 
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
@@ -118,7 +120,6 @@ function packReveal() {
 
     function weightedRandomCard() {
       const pool = [];
-
       allCards.forEach(card => {
         const weight = rarityWeights[card.rarity] || 1;
         for (let i = 0; i < weight; i++) {
