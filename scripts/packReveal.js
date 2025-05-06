@@ -18,9 +18,11 @@ function packReveal() {
     .finally(() => {
       container.innerHTML = '';
 
+      const flipQueue = [];
+
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
-        cardSlot.className = 'card-slot';
+        cardSlot.className = 'card-slot drop-in';
 
         const back = document.createElement('img');
         back.src = 'images/cards/000_CardBack_Unique.png';
@@ -30,7 +32,7 @@ function packReveal() {
         front.src = `images/cards/${card.filename}`;
         front.className = `card-img ${getRarityClass(card.rarity)}`;
         if (card.rarity.toLowerCase() === 'legendary') {
-          front.classList.add('shimmer'); // add shimmer if legendary
+          front.classList.add('shimmer');
         }
         front.style.opacity = '0';
         front.style.transform = 'rotateY(90deg)';
@@ -48,18 +50,26 @@ function packReveal() {
 
         container.appendChild(cardSlot);
 
-        ((thisCard) => {
-          setTimeout(() => {
-            back.classList.add('flip-out');
+        // Delay flip logic until after 3s drop-in animation
+        flipQueue.push(() => {
+          ((thisCard, thisBack, thisFront) => {
             setTimeout(() => {
-              front.style.opacity = '1';
-              front.style.transform = 'rotateY(0deg)';
-            }, 500);
+              thisBack.classList.add('flip-out');
+              setTimeout(() => {
+                thisFront.style.opacity = '1';
+                thisFront.style.transform = 'rotateY(0deg)';
+              }, 500);
 
-            if (thisCard.isNew) showToast(`New card unlocked: ${thisCard.name}`);
-          }, 1000 + i * 1000);
-        })(card);
+              if (thisCard.isNew) showToast(`New card unlocked: ${thisCard.name}`);
+            }, 1000 + i * 1000);
+          })(card, back, front);
+        });
       });
+
+      // Wait 3 seconds for all cards to "drop in" before flipping
+      setTimeout(() => {
+        flipQueue.forEach((fn) => fn());
+      }, 3000);
 
       let countdown = 20;
       const interval = setInterval(() => {
