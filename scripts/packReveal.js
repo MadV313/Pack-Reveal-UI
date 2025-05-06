@@ -1,70 +1,69 @@
-// packReveal.js
-
-document.addEventListener('DOMContentLoaded', async () => {
+function renderPackReveal() {
   const container = document.getElementById('cardContainer');
   const countdownEl = document.getElementById('countdown');
   const closeBtn = document.getElementById('closeBtn');
   const toast = document.getElementById('toast');
 
-  try {
-    let cards;
+  let cards;
 
-    const res = await fetch('/packReveal');
-    if (res.ok) {
-      cards = await res.json();
-    } else {
-      console.warn('Backend not available, using mock pack');
+  // Try to fetch from backend, otherwise fall back to mock pack
+  fetch('/packReveal')
+    .then((res) => res.ok ? res.json() : Promise.reject())
+    .then((data) => cards = data)
+    .catch(() => {
+      console.warn('Backend unavailable — using mock pack');
       cards = generateMockPack();
-    }
+    })
+    .finally(() => {
+      cards.forEach((card, i) => {
+        const flipCard = document.createElement('div');
+        flipCard.className = 'flip-card';
 
-    cards.forEach((card, i) => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'card-wrapper';
+        const inner = document.createElement('div');
+        inner.className = 'flip-inner';
 
-      const cardBack = document.createElement('img');
-      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
-      cardBack.className = 'card back';
+        const back = document.createElement('img');
+        back.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
+        back.className = 'card back';
 
-      const cardFront = document.createElement('img');
-      cardFront.src = `images/cards/${card.filename}`;
-      cardFront.className = `card front rarity-${card.rarity.toLowerCase()}`;
+        const front = document.createElement('img');
+        front.src = `images/cards/${card.filename}`;
+        front.className = `card front rarity-${card.rarity.toLowerCase()}`;
 
-      if (card.isNew) {
-        const badge = document.createElement('div');
-        badge.className = 'new-badge';
-        badge.textContent = 'New!';
-        wrapper.appendChild(badge);
-      }
+        inner.appendChild(back);
+        inner.appendChild(front);
+        flipCard.appendChild(inner);
 
-      wrapper.appendChild(cardBack);
-      wrapper.appendChild(cardFront);
-      container.appendChild(wrapper);
-
-      setTimeout(() => {
-        wrapper.classList.add('flip');
         if (card.isNew) {
-          showToast(`New card unlocked: ${card.name}`);
+          const badge = document.createElement('div');
+          badge.className = 'new-badge';
+          badge.textContent = 'New!';
+          flipCard.appendChild(badge);
         }
-      }, 1000 + i * 1000);
-    });
 
-    let countdown = 10;
-    const interval = setInterval(() => {
-      countdownEl.textContent = `Closing in ${countdown--}s`;
-      if (countdown < 0) {
-        clearInterval(interval);
+        container.appendChild(flipCard);
+
+        // Trigger flip after delay
+        setTimeout(() => {
+          inner.classList.add('flipped');
+          if (card.isNew) showToast(`New card unlocked: ${card.name}`);
+        }, 1000 + i * 1000);
+      });
+
+      // Countdown logic
+      let countdown = 10;
+      const interval = setInterval(() => {
+        countdownEl.textContent = `Closing in ${countdown--}s`;
+        if (countdown < 0) {
+          clearInterval(interval);
+          window.location.href = '/';
+        }
+      }, 1000);
+
+      closeBtn.addEventListener('click', () => {
         window.location.href = '/';
-      }
-    }, 1000);
-
-    closeBtn.addEventListener('click', () => {
-      window.location.href = '/';
+      });
     });
-
-  } catch (err) {
-    console.error('Pack reveal failed:', err);
-    container.innerHTML = '<p style="color:white;text-align:center;">Failed to load pack data.</p>';
-  }
 
   function showToast(message) {
     toast.textContent = message;
@@ -105,11 +104,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       { card_id: "#089", name: "Sewing Kit", rarity: "Rare", filename: "089_SewingKit_Loot.png", isNew: Math.random() < 0.5 },
       { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png", isNew: Math.random() < 0.5 }
     ];
-
     return [
       allCards[Math.floor(Math.random() * allCards.length)],
       allCards[Math.floor(Math.random() * allCards.length)],
       allCards[Math.floor(Math.random() * allCards.length)]
     ];
   }
-});
+}
