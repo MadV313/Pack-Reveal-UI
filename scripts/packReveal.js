@@ -1,93 +1,109 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Arial', sans-serif;
-  color: white;
-  text-align: center;
-  background: url('../images/backgrounds/pack_reveal_bg.jpg') no-repeat center center fixed;
-  background-size: cover;
-  overflow: hidden;
+// packReveal.js
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-}
+document.addEventListener('DOMContentLoaded', async () => {
+  const container = document.getElementById('cardContainer');
+  const countdownEl = document.getElementById('countdown');
+  const closeBtn = document.getElementById('closeBtn');
+  const toast = document.getElementById('toast');
 
-#reveal-title {
-  font-size: 52px;
-  font-weight: bold;
-  margin-bottom: 30px;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
-}
+  try {
+    const res = await fetch('/data/mock_pack_reveal.json');
+    const cards = await res.json();
 
-.card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  margin-bottom: 30px;
-}
+    // Fetch the actual card data from the CoreMasterReference or the weighted random logic
+    const cardData = await fetchCards(); // Fetch cards from your weighted logic function
 
-.card-slot {
-  width: 180px;
-  height: 260px;
-  position: relative;
-  perspective: 1000px;
-}
+    // Shuffle or randomly select cards as needed
+    const selectedCards = pickRandomCards(cardData, 3); // Picking 3 cards for the pack
 
-.card-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px;
-  backface-visibility: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transition: transform 0.6s ease;
-}
+    selectedCards.forEach((card, i) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'card-wrapper';
 
-.card-back.flip-out {
-  transform: rotateY(90deg);
-}
+      const cardBack = document.createElement('img');
+      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
+      cardBack.className = 'card back';
 
-#countdown {
-  font-size: 22px;
-  color: #ddd;
-  margin-top: 20px;
-}
+      const cardFront = document.createElement('img');
+      cardFront.src = `images/cards/${card.filename}`;
+      cardFront.className = `card front rarity-${card.rarity.toLowerCase()}`;
 
-#closeBtn {
-  margin-top: 16px;
-  padding: 12px 24px;
-  font-size: 20px;
-  background: #2e8b57;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+      if (card.isNew) {
+        const badge = document.createElement('div');
+        badge.className = 'new-badge';
+        badge.textContent = 'New!';
+        wrapper.appendChild(badge);
+      }
 
-#closeBtn:hover {
-  background: #3cb371;
-}
+      wrapper.appendChild(cardBack);
+      wrapper.appendChild(cardFront);
+      container.appendChild(wrapper);
 
-#toast {
-  position: fixed;
-  bottom: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.85);
-  padding: 14px 28px;
-  font-size: 18px;
-  color: white;
-  border-radius: 6px;
-  opacity: 0;
-  z-index: 999;
-  transition: opacity 0.4s ease-in-out;
-}
+      setTimeout(() => {
+        wrapper.classList.add('flip');
+        if (card.isNew) {
+          showToast(`New card unlocked: ${card.name}`);
+        }
+      }, 1000 + i * 1000); // staggered reveal
+    });
 
-#toast.show {
-  opacity: 1;
-}
+    let countdown = 10;
+    const interval = setInterval(() => {
+      countdownEl.textContent = `Closing in ${countdown--}s`;
+      if (countdown < 0) {
+        clearInterval(interval);
+        window.location.href = '/';
+      }
+    }, 1000);
+
+    closeBtn.addEventListener('click', () => {
+      window.location.href = '/';
+    });
+
+  } catch (err) {
+    console.error('Pack reveal failed:', err);
+    container.innerHTML = '<p style="color:white;text-align:center;">Failed to load pack data.</p>';
+  }
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Fetch the card data from your CoreMasterReference file (or from a dynamic source)
+  async function fetchCards() {
+    const response = await fetch('/path/to/CoreMasterReference.json');
+    const data = await response.json();
+    return data.filter(card => card.card_id !== '000');  // Exclude placeholder cards
+  }
+
+  // Weighted random logic to pick N cards
+  function pickRandomCards(cards, count) {
+    const weightedPool = [];
+
+    // Push the cards into the pool based on their rarity weight
+    cards.forEach(card => {
+      const weight = rarityWeights[card.rarity] || 1;
+      for (let i = 0; i < weight; i++) {
+        weightedPool.push(card);
+      }
+    });
+
+    // Shuffle the weighted pool
+    for (let i = weightedPool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [weightedPool[i], weightedPool[j]] = [weightedPool[j], weightedPool[i]]; // Swap
+    }
+
+    // Return the selected number of cards
+    return weightedPool.slice(0, count);
+  }
+
+  const rarityWeights = {
+    Common: 5,
+    Uncommon: 3,
+    Rare: 2,
+    Legendary: 1
+  };
+});
