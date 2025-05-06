@@ -99,11 +99,17 @@ function packReveal() {
       { card_id: "#089", name: "Sewing Kit", rarity: "Rare", filename: "089_SewingKit_Loot.png", isNew: Math.random() < 0.5 },
       { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png", isNew: Math.random() < 0.5 }
     ];
-    return [
-      allCards[Math.floor(Math.random() * allCards.length)],
-      allCards[Math.floor(Math.random() * allCards.length)],
-      allCards[Math.floor(Math.random() * allCards.length)]
-    ];
+    
+    // Pick 3 unique random cards
+  const selected = [];
+  while (selected.length < 3) {
+    const card = allCards[Math.floor(Math.random() * allCards.length)];
+    if (!selected.includes(card)) {
+      selected.push(card);
+    }
   }
+    
+  return selected;
+}
 }
 packReveal();
