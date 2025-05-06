@@ -12,58 +12,55 @@ async function renderPackReveal() {
     const data = await res.json();
 
     title.textContent = data.title || 'New Card Pack Unlocked!';
-    let delay = 0;
 
     data.cards.forEach((card, index) => {
-      const cardDiv = document.createElement('div');
-      cardDiv.classList.add('card-slot');
-      cardDiv.style.animationDelay = `${index * 1}s`;
+      const cardSlot = document.createElement('div');
+      cardSlot.classList.add('card-slot');
+      cardSlot.style.animationDelay = `${index * 1}s`;
 
-      // Card back image
+      // Card back image (starts visible)
       const cardBack = document.createElement('img');
-      cardBack.src = 'images/cards/000_CardBack_Unique.png';
+      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
       cardBack.className = 'card-img card-back';
-      cardDiv.appendChild(cardBack);
+      cardSlot.appendChild(cardBack);
 
-      // Card face image, starts hidden
-      const faceImg = document.createElement('img');
-      faceImg.src = `images/cards/${card.filename}`;
-      faceImg.className = `card-img border-${card.rarity.toLowerCase()}`;
-      faceImg.style.opacity = '0';
-      faceImg.style.transform = 'rotateY(90deg)';
-      faceImg.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
-      cardDiv.appendChild(faceImg);
+      // Card front image (starts hidden)
+      const cardFront = document.createElement('img');
+      cardFront.src = `images/cards/${card.filename}`;
+      cardFront.className = `card-img border-${card.rarity.toLowerCase()}`;
+      cardFront.style.opacity = '0';
+      cardFront.style.transform = 'rotateY(90deg)';
+      cardFront.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      cardSlot.appendChild(cardFront);
 
-      container.appendChild(cardDiv);
+      // Append slot to container
+      container.appendChild(cardSlot);
 
-      // Flip animation timing
+      // Flip animation
       setTimeout(() => {
         cardBack.classList.add('flip-out');
-
         setTimeout(() => {
-          faceImg.style.opacity = '1';
-          faceImg.style.transform = 'rotateY(0deg)';
-        }, 600); // Slight delay after back flip-out
+          cardFront.style.opacity = '1';
+          cardFront.style.transform = 'rotateY(0deg)';
+        }, 500);
 
-        // New unlock badge and toast
+        // New unlock logic
         if (card.newUnlock) {
           const badge = document.createElement('span');
-          badge.classList.add('new-unlock');
+          badge.className = 'new-unlock';
           badge.textContent = 'New!';
-          cardDiv.appendChild(badge);
+          cardSlot.appendChild(badge);
 
-          toast.textContent = `New card unlocked: ${card.cardId}`;
+          toast.textContent = `New card unlocked: ${card.name}`;
           toast.classList.add('show');
 
-          const isLastCard = index === data.cards.length - 1;
-          const toastDuration = isLastCard ? 3000 : 1500;
-
-          setTimeout(() => toast.classList.remove('show'), toastDuration);
+          const isLast = index === data.cards.length - 1;
+          setTimeout(() => toast.classList.remove('show'), isLast ? 3000 : 1500);
         }
       }, 1000 * (index + 1));
     });
 
-    // Countdown
+    // Countdown to auto-close
     let seconds = data.autoCloseIn || 10;
     countdown.textContent = `Closing in ${seconds}s...`;
 
@@ -76,10 +73,9 @@ async function renderPackReveal() {
       }
     }, 1000);
 
-    // Redirect HUB button
+    // HUB redirect
     closeBtn.textContent = 'HUB';
     closeBtn.onclick = () => window.location.href = 'https://madv313.github.io/HUB-UI/';
-
   } catch (err) {
     console.error('Pack reveal load failed:', err);
     title.textContent = 'Failed to load card pack.';
