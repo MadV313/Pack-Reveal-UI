@@ -1,4 +1,4 @@
-function renderPackReveal() {
+function packReveal() {
   const container = document.getElementById('cardContainer');
   const countdownEl = document.getElementById('countdown');
   const closeBtn = document.getElementById('closeBtn');
@@ -16,36 +16,31 @@ function renderPackReveal() {
     })
     .finally(() => {
       cards.forEach((card, i) => {
-        const flipCard = document.createElement('div');
-        flipCard.className = 'flip-card';
-
-        const inner = document.createElement('div');
-        inner.className = 'flip-inner';
+        const cardSlot = document.createElement('div');
+        cardSlot.className = 'card-slot';
 
         const back = document.createElement('img');
         back.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
-        back.className = 'card back';
+        back.className = 'card-img card-back';
 
         const front = document.createElement('img');
         front.src = `images/cards/${card.filename}`;
-        front.className = `card front rarity-${card.rarity.toLowerCase()}`;
+        front.className = `card-img border-${card.rarity.toLowerCase()}`;
 
-        inner.appendChild(back);
-        inner.appendChild(front);
-        flipCard.appendChild(inner);
+        cardSlot.appendChild(back);
+        cardSlot.appendChild(front);
 
         if (card.isNew) {
           const badge = document.createElement('div');
-          badge.className = 'new-badge';
+          badge.className = 'new-unlock';
           badge.textContent = 'New!';
-          flipCard.appendChild(badge);
+          cardSlot.appendChild(badge);
         }
 
-        container.appendChild(flipCard);
+        container.appendChild(cardSlot);
 
-        // Trigger flip after delay
         setTimeout(() => {
-          inner.classList.add('flipped');
+          back.classList.add('flip-out');
           if (card.isNew) showToast(`New card unlocked: ${card.name}`);
         }, 1000 + i * 1000);
       });
@@ -111,3 +106,4 @@ function renderPackReveal() {
     ];
   }
 }
+packReveal();
