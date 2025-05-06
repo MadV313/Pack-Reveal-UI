@@ -59,12 +59,12 @@ function packReveal() {
         countdownEl.textContent = `Closing in ${countdown--}s`;
         if (countdown < 0) {
           clearInterval(interval);
-          window.location.href = '/';
+          window.location.href = 'https://madv313.github.io/Card-Collection-UI/';
         }
       }, 1000);
 
       closeBtn.addEventListener('click', () => {
-        window.location.href = '/';
+        window.location.href = 'https://madv313.github.io/HUB-UI/';
       });
     });
 
