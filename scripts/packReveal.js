@@ -54,7 +54,7 @@ function packReveal() {
         }, 1000 + i * 1000);
       });
 
-      let countdown = 10;
+      let countdown = 20;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
         if (countdown < 0) {
