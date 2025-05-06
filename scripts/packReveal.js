@@ -16,7 +16,7 @@ function packReveal() {
       cards = generateMockPack(); // already returns exactly 3
     })
     .finally(() => {
-      container.innerHTML = ''; // Clear existing slots to avoid overflow
+      container.innerHTML = ''; // Clear any previous cards
 
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
@@ -28,10 +28,10 @@ function packReveal() {
 
         const front = document.createElement('img');
         front.src = `images/cards/${card.filename}`;
-        front.className = `card-img border-${card.rarity.toLowerCase()}`;
+        front.className = `card-img ${getRarityClass(card.rarity)}`;
         front.style.opacity = '0';
         front.style.transform = 'rotateY(90deg)';
-        front.style.transition = 'transform 0.8s ease, opacity 0.8s ease'; // Slowed flip animation
+        front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
 
         cardSlot.appendChild(back);
         cardSlot.appendChild(front);
@@ -56,7 +56,7 @@ function packReveal() {
         }, 1000 + i * 1000);
       });
 
-      // Countdown logic
+      // Countdown timer
       let countdown = 20;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
@@ -74,7 +74,18 @@ function packReveal() {
   function showToast(message) {
     toast.textContent = message;
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3500); // Extended toast duration
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  function getRarityClass(rarity) {
+    switch (rarity.toLowerCase()) {
+      case 'common': return 'border-common';
+      case 'uncommon': return 'border-uncommon';
+      case 'rare': return 'border-rare';
+      case 'legendary': return 'border-legendary';
+      case 'unique': return 'border-unique';
+      default: return '';
+    }
   }
 
   function generateMockPack() {
