@@ -38,10 +38,10 @@ function packReveal() {
         front.style.transform = 'rotateY(90deg)';
         front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
 
-        cardSlot.appendChild(back);
-        cardSlot.appendChild(front);
+        let isActuallyNew = false;
 
         if (card.isNew) {
+          isActuallyNew = true;
           const badge = document.createElement('div');
           badge.className = 'new-unlock';
           badge.textContent = 'New!';
@@ -51,7 +51,7 @@ function packReveal() {
         container.appendChild(cardSlot);
 
         flipQueue.push(() => {
-          ((thisCard, thisBack, thisFront) => {
+          ((thisBack, thisFront, newStatus, newName) => {
             setTimeout(() => {
               thisBack.classList.add('flip-out');
               setTimeout(() => {
@@ -59,13 +59,12 @@ function packReveal() {
                 thisFront.style.transform = 'rotateY(0deg)';
               }, 500);
 
-              if (thisCard.isNew) showToast(`New card unlocked: ${thisCard.name}`);
+              if (newStatus) showToast(`New card unlocked: ${newName}`);
             }, 1000 + i * 1000);
-          })(card, back, front);
+          })(back, front, isActuallyNew, card.name);
         });
       });
 
-      // Fade in container after drop animation completes
       setTimeout(() => {
         container.classList.add('show');
         flipQueue.forEach((fn) => fn());
