@@ -48,6 +48,53 @@ html, body {
   50% { text-shadow: 0 0 26px rgba(255,255,255,1); }
 }
 
+/* Card Entrance Effect */
+#cardEntranceEffect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  animation: entrance-float 2.4s ease-in-out infinite;
+}
+
+.card-back-glow-effect {
+  width: 220px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 40px 12px white;
+  animation: card-pulse 2s ease-in-out infinite;
+}
+
+#cardEntranceEffect.fade-out {
+  animation: fade-out-card 1s ease forwards;
+}
+
+@keyframes fade-out-card {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+}
+
+@keyframes entrance-float {
+  0%, 100% {
+    transform: translate(-50%, -52%);
+  }
+  50% {
+    transform: translate(-50%, -48%);
+  }
+}
+
+@keyframes card-pulse {
+  0%, 100% {
+    box-shadow: 0 0 30px 10px rgba(255,255,255,0.7);
+  }
+  50% {
+    box-shadow: 0 0 50px 16px rgba(255,255,255,1);
+  }
+}
+
 .card-container {
   display: flex;
   justify-content: center;
