@@ -118,7 +118,6 @@ html, body {
   will-change: transform, opacity;
 }
 
-/* Drop-in animation */
 .card-slot.drop-in {
   animation: drop-in 3s ease forwards;
 }
@@ -198,7 +197,7 @@ html, body {
   z-index: 2;
 }
 
-/* Toast Message (below cards, above button) */
+/* Toast Message */
 #toast {
   margin-top: 20px;
   background-color: #111;
@@ -215,7 +214,6 @@ html, body {
   opacity: 1;
 }
 
-/* Toast Pulse Effect */
 #toast.pulse {
   animation: toast-pulse 1.6s ease-in-out;
 }
