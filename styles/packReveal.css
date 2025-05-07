@@ -167,7 +167,7 @@ html, body {
 }
 
 .border-rare {
-  box-shadow: 0 0 24px 6px #a020f0; /* purple */
+  box-shadow: 0 0 24px 6px #a020f0;
 }
 
 .border-legendary {
@@ -215,7 +215,7 @@ html, body {
   opacity: 1;
 }
 
-/* NEW: Toast Pulse Effect */
+/* Toast Pulse Effect */
 #toast.pulse {
   animation: toast-pulse 1.6s ease-in-out;
 }
@@ -229,7 +229,7 @@ html, body {
   }
 }
 
-/* Countdown Timer (fixed at bottom) */
+/* Countdown Timer */
 #countdown {
   position: fixed;
   bottom: 40px;
@@ -253,4 +253,22 @@ html, body {
 
 #closeBtn:hover {
   background: #3cb371;
+}
+
+/* Fade to Black Overlay */
+#fadeOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+  z-index: 999;
+}
+
+#fadeOverlay.fade-in {
+  opacity: 1;
 }
