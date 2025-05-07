@@ -4,6 +4,14 @@ function packReveal() {
   const closeBtn = document.getElementById('closeBtn');
   const toast = document.getElementById('toast');
 
+  // Insert pre-reveal glowing card
+  const entranceEffect = document.createElement('div');
+  entranceEffect.id = 'cardEntranceEffect';
+  entranceEffect.innerHTML = `
+    <img src="images/cards/000_CardBack_Unique.png" class="card-back-glow-effect" />
+  `;
+  document.body.appendChild(entranceEffect);
+
   let cards;
 
   fetch('/packReveal')
@@ -16,8 +24,14 @@ function packReveal() {
       cards = generateMockPack();
     })
     .finally(() => {
-      container.innerHTML = '';
+      setTimeout(() => {
+        entranceEffect.classList.add('fade-out');
+        setTimeout(() => {
+          entranceEffect.remove();
+        }, 1000);
+      }, 2500);
 
+      container.innerHTML = '';
       const flipQueue = [];
 
       cards.forEach((card, i) => {
@@ -65,6 +79,7 @@ function packReveal() {
         });
       });
 
+      // Reveal card container after entrance animation
       setTimeout(() => {
         container.classList.add('show');
         flipQueue.forEach((fn) => fn());
