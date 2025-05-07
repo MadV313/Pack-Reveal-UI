@@ -29,63 +29,66 @@ function packReveal() {
       cards = generateMockPack();
     })
     .finally(() => {
-      container.innerHTML = '';
-      const flipQueue = [];
-
-      cards.forEach((card, i) => {
-        const cardSlot = document.createElement('div');
-        cardSlot.className = 'card-slot drop-in';
-
-        const back = document.createElement('img');
-        back.src = 'images/cards/000_CardBack_Unique.png';
-        back.className = 'card-img card-back';
-
-        const front = document.createElement('img');
-        front.src = `images/cards/${card.filename}`;
-        front.className = `card-img ${getRarityClass(card.rarity)}`;
-        if (card.rarity.toLowerCase() === 'legendary') {
-          front.classList.add('shimmer');
-        }
-        front.style.opacity = '0';
-        front.style.transform = 'rotateY(90deg)';
-        front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
-
-        let isActuallyNew = false;
-
-        if (card.isNew) {
-          isActuallyNew = true;
-          const badge = document.createElement('div');
-          badge.className = 'new-unlock';
-          badge.textContent = 'New!';
-          cardSlot.appendChild(badge);
-        }
-
-        container.appendChild(cardSlot);
-
-        flipQueue.push(() => {
-          ((thisBack, thisFront, newStatus, newName) => {
-            setTimeout(() => {
-              thisBack.classList.add('flip-out');
-              setTimeout(() => {
-                thisFront.style.opacity = '1';
-                thisFront.style.transform = 'rotateY(0deg)';
-              }, 500);
-
-              if (newStatus) showToast(`New card unlocked: ${newName}`);
-            }, 1000 + i * 1000);
-          })(back, front, isActuallyNew, card.name);
-        });
-      });
-
-      // Wait until entrance fades before flipping cards
+      // Wait until entrance fades before showing cards
       setTimeout(() => {
         entranceEffect.classList.add('fade-out');
         setTimeout(() => {
           entranceEffect.remove();
+
+          container.innerHTML = '';
+          const flipQueue = [];
+
+          cards.forEach((card, i) => {
+            const cardSlot = document.createElement('div');
+            cardSlot.className = 'card-slot drop-in';
+
+            const back = document.createElement('img');
+            back.src = 'images/cards/000_CardBack_Unique.png';
+            back.className = 'card-img card-back';
+
+            const front = document.createElement('img');
+            front.src = `images/cards/${card.filename}`;
+            front.className = `card-img ${getRarityClass(card.rarity)}`;
+            if (card.rarity.toLowerCase() === 'legendary') {
+              front.classList.add('shimmer');
+            }
+            front.style.opacity = '0';
+            front.style.transform = 'rotateY(90deg)';
+            front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
+
+            let isActuallyNew = false;
+
+            if (card.isNew) {
+              isActuallyNew = true;
+              const badge = document.createElement('div');
+              badge.className = 'new-unlock';
+              badge.textContent = 'New!';
+              cardSlot.appendChild(badge);
+            }
+
+            cardSlot.appendChild(back);
+            cardSlot.appendChild(front);
+            container.appendChild(cardSlot);
+
+            flipQueue.push(() => {
+              ((thisBack, thisFront, newStatus, newName) => {
+                setTimeout(() => {
+                  thisBack.classList.add('flip-out');
+                  setTimeout(() => {
+                    thisFront.style.opacity = '1';
+                    thisFront.style.transform = 'rotateY(0deg)';
+                  }, 500);
+
+                  if (newStatus) showToast(`New card unlocked: ${newName}`);
+                }, 1000 + i * 1000);
+              })(back, front, isActuallyNew, card.name);
+            });
+          });
+
           container.classList.add('show');
           flipQueue.forEach((fn) => fn());
-        }, 1500);
-      }, 2500);
+        }, 1500); // entrance fade duration
+      }, 2500); // entrance display duration
 
       let countdown = 15;
       const interval = setInterval(() => {
