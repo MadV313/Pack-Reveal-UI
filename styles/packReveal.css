@@ -168,6 +168,20 @@ html, body {
   opacity: 1;
 }
 
+/* NEW: Toast Pulse Effect */
+#toast.pulse {
+  animation: toast-pulse 1.6s ease-in-out;
+}
+
+@keyframes toast-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px 4px rgba(255,255,255,0.4);
+  }
+  50% {
+    box-shadow: 0 0 24px 10px rgba(255,255,255,0.9);
+  }
+}
+
 /* Countdown Timer (fixed at bottom) */
 #countdown {
   position: fixed;
