@@ -26,10 +26,26 @@ html, body {
   filter: brightness(0.5);
 }
 
+/* Reveal Title Drop & Shimmer */
 #reveal-title {
   font-size: 60px;
   margin: 40px 0 10px;
   text-shadow: 0 0 16px rgba(255,255,255,0.95);
+  opacity: 0;
+  transform: translateY(-100px);
+  animation: title-drop-in 1.6s ease-out forwards, title-shimmer 2.8s ease-in-out infinite 1.6s;
+}
+
+@keyframes title-drop-in {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes title-shimmer {
+  0%, 100% { text-shadow: 0 0 16px rgba(255,255,255,0.95); }
+  50% { text-shadow: 0 0 26px rgba(255,255,255,1); }
 }
 
 .card-container {
@@ -104,7 +120,7 @@ html, body {
 }
 
 .border-rare {
-  box-shadow: 0 0 24px 6px #a020f0; /* lighter purple */
+  box-shadow: 0 0 24px 6px #a020f0; /* purple */
 }
 
 .border-legendary {
