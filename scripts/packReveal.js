@@ -29,13 +29,6 @@ function packReveal() {
       cards = generateMockPack();
     })
     .finally(() => {
-      setTimeout(() => {
-        entranceEffect.classList.add('fade-out');
-        setTimeout(() => {
-          entranceEffect.remove();
-        }, 1000);
-      }, 2500);
-
       container.innerHTML = '';
       const flipQueue = [];
 
@@ -84,10 +77,15 @@ function packReveal() {
         });
       });
 
+      // Wait until entrance fades before flipping cards
       setTimeout(() => {
-        container.classList.add('show');
-        flipQueue.forEach((fn) => fn());
-      }, 3000);
+        entranceEffect.classList.add('fade-out');
+        setTimeout(() => {
+          entranceEffect.remove();
+          container.classList.add('show');
+          flipQueue.forEach((fn) => fn());
+        }, 1500);
+      }, 2500);
 
       let countdown = 15;
       const interval = setInterval(() => {
