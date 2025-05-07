@@ -4,6 +4,11 @@ function packReveal() {
   const closeBtn = document.getElementById('closeBtn');
   const toast = document.getElementById('toast');
 
+  // Insert fade overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'fadeOverlay';
+  document.body.appendChild(overlay);
+
   // Insert pre-reveal glowing card
   const entranceEffect = document.createElement('div');
   entranceEffect.id = 'cardEntranceEffect';
@@ -79,7 +84,6 @@ function packReveal() {
         });
       });
 
-      // Reveal card container after entrance animation
       setTimeout(() => {
         container.classList.add('show');
         flipQueue.forEach((fn) => fn());
@@ -88,6 +92,11 @@ function packReveal() {
       let countdown = 15;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
+
+        if (countdown === 3) {
+          overlay.classList.add('fade-in');
+        }
+
         if (countdown < 0) {
           clearInterval(interval);
           window.location.href = 'https://madv313.github.io/Card-Collection-UI/';
@@ -142,13 +151,12 @@ function packReveal() {
       { card_id: "#108", name: "Landmine", rarity: "Rare", filename: "108_Landmine_Trap.png" },
       { card_id: "#081", name: "Dynamite", rarity: "Rare", filename: "081_Dynamite_Loot.png" },
       { card_id: "#019", name: "KA-74", rarity: "Uncommon", filename: "019_KA74_Attack.png" },
-      { card_id: "#000", name: "WinterLand Death Deck (Face-Down)", rarity: "Unique", filename: "000_CardBack_Unique.png" },
       { card_id: "#049", name: "Tracksuit Jacket", rarity: "Uncommon", filename: "049_TracksuitJacket_Defense.png" },
       { card_id: "#066", name: "Headtorch", rarity: "Rare", filename: "066_Headtorch_Tactical.png" },
       { card_id: "#025", name: "SG5-K", rarity: "Common", filename: "025_SG5K_Attack.png" },
       { card_id: "#089", name: "Sewing Kit", rarity: "Rare", filename: "089_SewingKit_Loot.png" },
       { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png" }
-    ];
+    ].filter(card => card.card_id !== "#000");
 
     const rarityWeights = {
       Common: 5,
