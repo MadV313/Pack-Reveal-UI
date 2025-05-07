@@ -29,6 +29,15 @@ function packReveal() {
       cards = generateMockPack();
     })
     .finally(() => {
+      // Save recent unlocks to localStorage for Collection UI
+      localStorage.setItem("recentUnlocks", JSON.stringify(
+        cards.map(c => ({
+          cardId: c.card_id,
+          filename: c.filename,
+          rarity: c.rarity
+        }))
+      ));
+
       // Wait until entrance fades before showing cards
       setTimeout(() => {
         entranceEffect.classList.add('fade-out');
