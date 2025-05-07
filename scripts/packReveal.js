@@ -90,7 +90,7 @@ function packReveal() {
         }, 1500); // entrance fade duration
       }, 2500); // entrance display duration
 
-      let countdown = 15;
+      let countdown = 12;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
 
