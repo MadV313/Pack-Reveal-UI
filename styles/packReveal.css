@@ -104,7 +104,7 @@ html, body {
 }
 
 .border-rare {
-  box-shadow: 0 0 24px 6px #ffa500;
+  box-shadow: 0 0 24px 6px #a020f0; /* lighter purple */
 }
 
 .border-legendary {
