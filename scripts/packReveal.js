@@ -87,8 +87,8 @@ function packReveal() {
 
   function showToast(message) {
     toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3500);
+    toast.classList.add('show', 'pulse');
+    setTimeout(() => toast.classList.remove('show', 'pulse'), 3500);
   }
 
   function getRarityClass(rarity) {
