@@ -90,11 +90,11 @@ function packReveal() {
         }, 1500); // entrance fade duration
       }, 2500); // entrance display duration
 
-      let countdown = 15;
+      let countdown = 13;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
 
-        if (countdown === 3) {
+        if (countdown === 1) {
           overlay.classList.add('fade-in');
         }
 
