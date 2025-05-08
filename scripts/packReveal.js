@@ -1,4 +1,4 @@
-functionfunction packReveal() {
+function packReveal() {
   const container = document.getElementById('cardContainer');
   const countdownEl = document.getElementById('countdown');
   const closeBtn = document.getElementById('closeBtn');
