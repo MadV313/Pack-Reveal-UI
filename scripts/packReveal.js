@@ -28,7 +28,7 @@ async function packReveal() {
       filename: c.filename,
       rarity: c.rarity,
       isNew: c.isNew,
-      owned: c.owned, // Include owned count in transfer
+      owned: 1, // force display on collection UI
       number: c.card_id?.replace('#', '') || '',
       name: c.name || ''
     }))
@@ -191,7 +191,7 @@ async function packReveal() {
 
       const chosen = structuredClone(pool[Math.floor(Math.random() * pool.length)]);
       chosen.isNew = Math.random() < 0.5;
-      chosen.owned = 1; // Show "Owned: 1" for new unlocks
+      chosen.owned = 1;
       return chosen;
     }
 
