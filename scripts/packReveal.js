@@ -115,7 +115,9 @@ function packReveal() {
       }, 1000); // <<== this line was missing
 
       closeBtn.addEventListener('click', () => {
-        window.location.href = 'https://madv313.github.io/HUB-UI/';
+        setTimeout(() => {
+  window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
+}, 200); // short delay to ensure localStorage writes fully
       });
     });
 
