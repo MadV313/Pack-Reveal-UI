@@ -1,4 +1,4 @@
-function packReveal() {
+functionfunction packReveal() {
   const container = document.getElementById('cardContainer');
   const countdownEl = document.getElementById('countdown');
   const closeBtn = document.getElementById('closeBtn');
@@ -34,7 +34,8 @@ function packReveal() {
         cards.map(c => ({
           cardId: c.card_id,
           filename: c.filename,
-          rarity: c.rarity
+          rarity: c.rarity,
+          isNew: c.isNew // now included for accurate collection screen logic
         }))
       ));
 
@@ -65,10 +66,9 @@ function packReveal() {
             front.style.transform = 'rotateY(90deg)';
             front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
 
-            let isActuallyNew = false;
+            let isActuallyNew = !!card.isNew;
 
-            if (card.isNew) {
-              isActuallyNew = true;
+            if (isActuallyNew) {
               const badge = document.createElement('div');
               badge.className = 'new-unlock';
               badge.textContent = 'New!';
