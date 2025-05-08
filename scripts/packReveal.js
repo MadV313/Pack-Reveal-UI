@@ -108,10 +108,9 @@ function packReveal() {
         }
 
         if (countdown < 0) {
-          clearInterval(interval);
-          window.location.href = 'https://madv313.github.io/Card-Collection-UI/';
-        }
-      }, 1000);
+  clearInterval(interval);
+  window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
+}
 
       closeBtn.addEventListener('click', () => {
         window.location.href = 'https://madv313.github.io/HUB-UI/';
