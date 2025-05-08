@@ -99,6 +99,7 @@ function packReveal() {
         }, 1500); // entrance fade duration
       }, 2500); // entrance display duration
 
+      // Fixed countdown logic
       let countdown = 13;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
@@ -108,9 +109,10 @@ function packReveal() {
         }
 
         if (countdown < 0) {
-  clearInterval(interval);
-  window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
-}
+          clearInterval(interval);
+          window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
+        }
+      }, 1000); // <<== this line was missing
 
       closeBtn.addEventListener('click', () => {
         window.location.href = 'https://madv313.github.io/HUB-UI/';
