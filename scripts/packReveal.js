@@ -1,4 +1,6 @@
-function packReveal() {
+const USE_MOCK_MODE = true; // Set to false when backend is ready
+
+async function packReveal() {
   const container = document.getElementById('cardContainer');
   const countdownEl = document.getElementById('countdown');
   const closeBtn = document.getElementById('closeBtn');
@@ -17,110 +19,96 @@ function packReveal() {
   `;
   document.body.appendChild(entranceEffect);
 
-  let cards;
+  const cards = USE_MOCK_MODE ? generateMockPack() : await fetchCards();
 
-  fetch('/packReveal')
-    .then((res) => res.ok ? res.json() : Promise.reject())
-    .then((data) => {
-      cards = data.slice(0, 3);
-    })
-    .catch(() => {
-      console.warn('Backend unavailable — using mock pack');
-      cards = generateMockPack();
-    })
-    .finally(() => {
-      // Save recent unlocks to localStorage for Collection UI
-      localStorage.setItem("recentUnlocks", JSON.stringify(
-        cards.map(c => ({
-          cardId: c.card_id,
-          filename: c.filename,
-          rarity: c.rarity,
-          isNew: c.isNew // now included for accurate collection screen logic
-        }))
-      ));
+  // Save to localStorage for collection UI
+  localStorage.setItem("recentUnlocks", JSON.stringify(
+    cards.map(c => ({
+      cardId: c.card_id,
+      filename: c.filename,
+      rarity: c.rarity,
+      isNew: c.isNew,
+      number: c.card_id?.replace('#', '') || '',
+      name: c.name || ''
+    }))
+  ));
 
-      // Wait until entrance fades before showing cards
-      setTimeout(() => {
-        entranceEffect.classList.add('fade-out');
-        setTimeout(() => {
-          entranceEffect.remove();
+  // Reveal sequence
+  setTimeout(() => {
+    entranceEffect.classList.add('fade-out');
+    setTimeout(() => {
+      entranceEffect.remove();
 
-          container.innerHTML = '';
-          const flipQueue = [];
+      container.innerHTML = '';
+      const flipQueue = [];
 
-          cards.forEach((card, i) => {
-            const cardSlot = document.createElement('div');
-            cardSlot.className = 'card-slot drop-in';
+      cards.forEach((card, i) => {
+        const cardSlot = document.createElement('div');
+        cardSlot.className = 'card-slot drop-in';
 
-            const back = document.createElement('img');
-            back.src = 'images/cards/000_CardBack_Unique.png';
-            back.className = 'card-img card-back';
+        const back = document.createElement('img');
+        back.src = 'images/cards/000_CardBack_Unique.png';
+        back.className = 'card-img card-back';
 
-            const front = document.createElement('img');
-            front.src = `images/cards/${card.filename}`;
-            front.className = `card-img ${getRarityClass(card.rarity)}`;
-            if (card.rarity.toLowerCase() === 'legendary') {
-              front.classList.add('shimmer');
-            }
-            front.style.opacity = '0';
-            front.style.transform = 'rotateY(90deg)';
-            front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
+        const front = document.createElement('img');
+        front.src = `images/cards/${card.filename}`;
+        front.className = `card-img ${getRarityClass(card.rarity)}`;
+        if (card.rarity.toLowerCase() === 'legendary') {
+          front.classList.add('shimmer');
+        }
+        front.style.opacity = '0';
+        front.style.transform = 'rotateY(90deg)';
+        front.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
 
-            let isActuallyNew = !!card.isNew;
-
-            if (isActuallyNew) {
-              const badge = document.createElement('div');
-              badge.className = 'new-unlock';
-              badge.textContent = 'New!';
-              cardSlot.appendChild(badge);
-            }
-
-            cardSlot.appendChild(back);
-            cardSlot.appendChild(front);
-            container.appendChild(cardSlot);
-
-            flipQueue.push(() => {
-              ((thisBack, thisFront, newStatus, newName) => {
-                setTimeout(() => {
-                  thisBack.classList.add('flip-out');
-                  setTimeout(() => {
-                    thisFront.style.opacity = '1';
-                    thisFront.style.transform = 'rotateY(0deg)';
-                  }, 500);
-
-                  if (newStatus) showToast(`New card unlocked: ${newName}`);
-                }, 1000 + i * 1000);
-              })(back, front, isActuallyNew, card.name);
-            });
-          });
-
-          container.classList.add('show');
-          flipQueue.forEach((fn) => fn());
-        }, 1500); // entrance fade duration
-      }, 2500); // entrance display duration
-
-      // Countdown auto-redirect with delay
-      let countdown = 13;
-      const interval = setInterval(() => {
-        countdownEl.textContent = `Closing in ${countdown--}s`;
-
-        if (countdown === 1) {
-          overlay.classList.add('fade-in');
+        if (card.isNew) {
+          const badge = document.createElement('div');
+          badge.className = 'new-unlock';
+          badge.textContent = 'New!';
+          cardSlot.appendChild(badge);
         }
 
-        if (countdown < 0) {
-          clearInterval(interval);
-          setTimeout(() => {
-            window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
-          }, 200); // slight delay to allow localStorage to save
-        }
-      }, 1000);
+        cardSlot.appendChild(back);
+        cardSlot.appendChild(front);
+        container.appendChild(cardSlot);
 
-      // Manual close button to return to HUB
-      closeBtn.addEventListener('click', () => {
-        window.location.href = 'https://madv313.github.io/HUB-UI/';
+        flipQueue.push(() => {
+          ((thisBack, thisFront, newStatus, newName) => {
+            setTimeout(() => {
+              thisBack.classList.add('flip-out');
+              setTimeout(() => {
+                thisFront.style.opacity = '1';
+                thisFront.style.transform = 'rotateY(0deg)';
+              }, 500);
+              if (newStatus) showToast(`New card unlocked: ${newName}`);
+            }, 1000 + i * 1000);
+          })(back, front, card.isNew, card.name);
+        });
       });
-    });
+
+      container.classList.add('show');
+      flipQueue.forEach(fn => fn());
+    }, 1500);
+  }, 2500);
+
+  let countdown = 13;
+  const interval = setInterval(() => {
+    countdownEl.textContent = `Closing in ${countdown--}s`;
+
+    if (countdown === 1) {
+      overlay.classList.add('fade-in');
+    }
+
+    if (countdown < 0) {
+      clearInterval(interval);
+      setTimeout(() => {
+        window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
+      }, 200);
+    }
+  }, 1000);
+
+  closeBtn.addEventListener('click', () => {
+    window.location.href = 'https://madv313.github.io/HUB-UI/';
+  });
 
   function showToast(message) {
     toast.textContent = message;
@@ -136,6 +124,18 @@ function packReveal() {
       case 'legendary': return 'border-legendary';
       case 'unique': return 'border-unique';
       default: return '';
+    }
+  }
+
+  async function fetchCards() {
+    try {
+      const res = await fetch('/packReveal');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      return data.slice(0, 3);
+    } catch (e) {
+      console.warn('Backend unavailable — using mock pack');
+      return generateMockPack();
     }
   }
 
@@ -170,7 +170,7 @@ function packReveal() {
       { card_id: "#025", name: "SG5-K", rarity: "Common", filename: "025_SG5K_Attack.png" },
       { card_id: "#089", name: "Sewing Kit", rarity: "Rare", filename: "089_SewingKit_Loot.png" },
       { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png" }
-    ].filter(card => card.card_id !== "#000");
+    ];
 
     const rarityWeights = {
       Common: 5,
