@@ -6,12 +6,12 @@ async function packReveal() {
   const closeBtn = document.getElementById('closeBtn');
   const toast = document.getElementById('toast');
 
-  // Insert fade overlay
+  // Fade overlay
   const overlay = document.createElement('div');
   overlay.id = 'fadeOverlay';
   document.body.appendChild(overlay);
 
-  // Insert pre-reveal glowing card
+  // Glowing intro card
   const entranceEffect = document.createElement('div');
   entranceEffect.id = 'cardEntranceEffect';
   entranceEffect.innerHTML = `
@@ -21,25 +21,24 @@ async function packReveal() {
 
   const cards = USE_MOCK_MODE ? generateMockPack() : await fetchCards();
 
-  // Save to localStorage for collection UI
+  // Store reveal data
   localStorage.setItem("recentUnlocks", JSON.stringify(
     cards.map(c => ({
       cardId: c.card_id,
       filename: c.filename,
       rarity: c.rarity,
       isNew: c.isNew,
-      owned: 1, // force display on collection UI
+      owned: 1,
       number: c.card_id?.replace('#', '') || '',
       name: c.name || ''
     }))
   ));
 
-  // Reveal sequence
+  // Show cards after intro
   setTimeout(() => {
     entranceEffect.classList.add('fade-out');
     setTimeout(() => {
       entranceEffect.remove();
-
       container.innerHTML = '';
       const flipQueue = [];
 
@@ -73,16 +72,14 @@ async function packReveal() {
         container.appendChild(cardSlot);
 
         flipQueue.push(() => {
-          ((thisBack, thisFront, newStatus, newName) => {
+          setTimeout(() => {
+            back.classList.add('flip-out');
             setTimeout(() => {
-              thisBack.classList.add('flip-out');
-              setTimeout(() => {
-                thisFront.style.opacity = '1';
-                thisFront.style.transform = 'rotateY(0deg)';
-              }, 500);
-              if (newStatus) showToast(`New card unlocked: ${newName}`);
-            }, 1000 + i * 1000);
-          })(back, front, card.isNew, card.name);
+              front.style.opacity = '1';
+              front.style.transform = 'rotateY(0deg)';
+            }, 500);
+            if (card.isNew) showToast(`New card unlocked: ${card.name}`);
+          }, 1000 + i * 1000);
         });
       });
 
@@ -91,14 +88,11 @@ async function packReveal() {
     }, 1500);
   }, 2500);
 
+  // Countdown logic
   let countdown = 13;
   const interval = setInterval(() => {
     countdownEl.textContent = `Closing in ${countdown--}s`;
-
-    if (countdown === 1) {
-      overlay.classList.add('fade-in');
-    }
-
+    if (countdown === 1) overlay.classList.add('fade-in');
     if (countdown < 0) {
       clearInterval(interval);
       setTimeout(() => {
@@ -134,7 +128,7 @@ async function packReveal() {
       if (!res.ok) throw new Error();
       const data = await res.json();
       return data.slice(0, 3);
-    } catch (e) {
+    } catch {
       console.warn('Backend unavailable — using mock pack');
       return generateMockPack();
     }
@@ -173,26 +167,14 @@ async function packReveal() {
       { card_id: "#088", name: "Cooking Pot", rarity: "Common", filename: "088_CookingPot_Loot.png" }
     ];
 
-    const rarityWeights = {
-      Common: 5,
-      Uncommon: 3,
-      Rare: 2,
-      Legendary: 1
-    };
+    const rarityWeights = { Common: 5, Uncommon: 3, Rare: 2, Legendary: 1 };
 
     function weightedRandomCard() {
-      const pool = [];
-      allCards.forEach(card => {
-        const weight = rarityWeights[card.rarity] || 1;
-        for (let i = 0; i < weight; i++) {
-          pool.push(card);
-        }
-      });
-
-      const chosen = structuredClone(pool[Math.floor(Math.random() * pool.length)]);
-      chosen.isNew = Math.random() < 0.5;
-      chosen.owned = 1;
-      return chosen;
+      const pool = allCards.flatMap(card => Array(rarityWeights[card.rarity] || 1).fill(card));
+      const selected = structuredClone(pool[Math.floor(Math.random() * pool.length)]);
+      selected.isNew = true;
+      selected.owned = 1;
+      return selected;
     }
 
     return [weightedRandomCard(), weightedRandomCard(), weightedRandomCard()];
