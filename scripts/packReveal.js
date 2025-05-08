@@ -99,7 +99,7 @@ function packReveal() {
         }, 1500); // entrance fade duration
       }, 2500); // entrance display duration
 
-      // Fixed countdown logic
+      // Countdown auto-redirect with delay
       let countdown = 13;
       const interval = setInterval(() => {
         countdownEl.textContent = `Closing in ${countdown--}s`;
@@ -110,14 +110,15 @@ function packReveal() {
 
         if (countdown < 0) {
           clearInterval(interval);
-          window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
+          setTimeout(() => {
+            window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
+          }, 200); // slight delay to allow localStorage to save
         }
-      }, 1000); // <<== this line was missing
+      }, 1000);
 
+      // Manual close button to return to HUB
       closeBtn.addEventListener('click', () => {
-        setTimeout(() => {
-  window.location.href = 'https://madv313.github.io/Card-Collection-UI/?fromPackReveal=true';
-}, 200); // short delay to ensure localStorage writes fully
+        window.location.href = 'https://madv313.github.io/HUB-UI/';
       });
     });
 
