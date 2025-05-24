@@ -16,6 +16,27 @@
       pointer-events: none;
       z-index: 0;
     }
+
+    .back-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #008080;
+      border: 2px solid white;
+      border-radius: 4px;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    }
+
+    .back-button:hover {
+      border: 2px solid #00ffff;
+      transform: scale(1.02);
+      box-shadow: 0 0 15px #00ffff, 0 0 5px #00ffff inset;
+      background-color: #004d4d;
+    }
   </style>
 </head>
 <body>
@@ -28,7 +49,7 @@
 
   <div id="toast"></div>
   <p id="countdown"></p>
-  <button id="closeBtn">HUB</button>
+  <button id="closeBtn" class="back-button">HUB</button>
 
   <!-- Load packReveal.js (uses built-in mock data logic) -->
   <script src="scripts/packReveal.js"></script>
