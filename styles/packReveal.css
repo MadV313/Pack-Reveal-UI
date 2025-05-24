@@ -91,12 +91,8 @@ html, body {
 }
 
 @keyframes entrance-float {
-  0%, 100% {
-    transform: translate(-50%, -52%);
-  }
-  50% {
-    transform: translate(-50%, -48%);
-  }
+  0%, 100% { transform: translate(-50%, -52%); }
+  50% { transform: translate(-50%, -48%); }
 }
 
 @keyframes card-pulse {
@@ -250,20 +246,24 @@ html, body {
   color: #ccc;
 }
 
-/* Close Button */
+/* Back Button Style Match */
 #closeBtn {
   margin-top: 20px;
-  padding: 16px 34px;
-  font-size: 22px;
-  background: #2e8b57;
+  padding: 10px 20px;
+  background-color: #008080;
   color: white;
-  border: none;
-  border-radius: 8px;
+  border: 2px solid white;
+  border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
 }
 
 #closeBtn:hover {
-  background: #3cb371;
+  border: 2px solid #00ffff;
+  transform: scale(1.02);
+  box-shadow: 0 0 15px #00ffff, 0 0 5px #00ffff inset;
+  background-color: #004d4d;
 }
 
 /* Fade to Black Overlay */
