@@ -89,7 +89,7 @@ async function packReveal() {
   }, 2500);
 
   // Countdown logic
-  let countdown = 13;
+  let countdown = 16;
   const interval = setInterval(() => {
     countdownEl.textContent = `Closing in ${countdown--}s`;
     if (countdown === 1) overlay.classList.add('fade-in');
