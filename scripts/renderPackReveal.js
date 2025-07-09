@@ -7,13 +7,17 @@ async function renderPackReveal() {
   const closeBtn = document.getElementById('closeBtn');
   const title = document.getElementById('reveal-title');
 
+  const params = new URLSearchParams(window.location.search);
+  const uid = params.get('uid');
+  const revealUrl = uid ? `data/reveal_${uid}.json` : 'data/mock_pack_reveal.json';
+
   try {
-    const res = await fetch('data/mock_pack_reveal.json');
-    const data = await res.json();
+    const res = await fetch(revealUrl);
+    const cards = await res.json();
 
-    title.textContent = data.title || 'New Card Pack Unlocked!';
+    title.textContent = 'New Card Pack Unlocked!';
 
-    data.cards.forEach((card, index) => {
+    cards.forEach((card, index) => {
       const cardSlot = document.createElement('div');
       cardSlot.classList.add('card-slot');
       cardSlot.style.animationDelay = `${index * 1}s`;
@@ -24,7 +28,7 @@ async function renderPackReveal() {
       cardBack.className = 'card-img card-back';
       cardSlot.appendChild(cardBack);
 
-      // Card front image (starts hidden)
+      // Card front image
       const cardFront = document.createElement('img');
       cardFront.src = `images/cards/${card.filename}`;
       cardFront.className = `card-img border-${card.rarity.toLowerCase()}`;
@@ -33,10 +37,8 @@ async function renderPackReveal() {
       cardFront.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
       cardSlot.appendChild(cardFront);
 
-      // Append slot to container
       container.appendChild(cardSlot);
 
-      // Flip animation
       setTimeout(() => {
         cardBack.classList.add('flip-out');
         setTimeout(() => {
@@ -44,8 +46,7 @@ async function renderPackReveal() {
           cardFront.style.transform = 'rotateY(0deg)';
         }, 500);
 
-        // New unlock logic
-        if (card.newUnlock) {
+        if (card.isNew) {
           const badge = document.createElement('span');
           badge.className = 'new-unlock';
           badge.textContent = 'New!';
@@ -54,16 +55,14 @@ async function renderPackReveal() {
           toast.textContent = `New card unlocked: ${card.name}`;
           toast.classList.add('show');
 
-          const isLast = index === data.cards.length - 1;
+          const isLast = index === cards.length - 1;
           setTimeout(() => toast.classList.remove('show'), isLast ? 3000 : 1500);
         }
       }, 1000 * (index + 1));
     });
 
-    // Countdown to auto-close
-    let seconds = data.autoCloseIn || 10;
+    let seconds = 10;
     countdown.textContent = `Closing in ${seconds}s...`;
-
     const timer = setInterval(() => {
       seconds--;
       countdown.textContent = `Closing in ${seconds}s...`;
@@ -73,7 +72,6 @@ async function renderPackReveal() {
       }
     }, 1000);
 
-    // HUB redirect
     closeBtn.textContent = 'HUB';
     closeBtn.onclick = () => window.location.href = 'https://madv313.github.io/HUB-UI/';
   } catch (err) {
