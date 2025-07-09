@@ -9,13 +9,15 @@ async function renderPackReveal() {
 
   const params = new URLSearchParams(window.location.search);
   const uid = params.get('uid');
-  const revealUrl = uid ? `data/reveal_${uid}.json` : 'data/mock_pack_reveal.json';
+  const fallbackUrl = 'data/mock_pack_reveal.json';
+  const revealUrl = uid ? `/reveal/${uid}.json` : fallbackUrl;
 
   try {
     const res = await fetch(revealUrl);
-    const data = await res.json();
+    if (!res.ok) throw new Error(`Reveal fetch failed (${res.status})`);
 
-    const cards = data.cards || []; // ✅ Use `data.cards` instead of assuming array
+    const data = await res.json();
+    const cards = data.cards || [];
     title.textContent = data.title || 'New Card Pack Unlocked!';
 
     cards.forEach((card, index) => {
@@ -78,9 +80,54 @@ async function renderPackReveal() {
 
     closeBtn.textContent = 'HUB';
     closeBtn.onclick = () => window.location.href = 'https://madv313.github.io/HUB-UI/';
+
   } catch (err) {
-    console.error('Pack reveal load failed:', err);
-    title.textContent = 'Failed to load card pack.';
+    console.error('❌ Pack reveal load failed, fallback engaged:', err);
+
+    // Fallback to mock file
+    if (revealUrl !== fallbackUrl) {
+      try {
+        const res = await fetch(fallbackUrl);
+        const data = await res.json();
+        title.textContent = 'Fallback: Mock Pack Reveal';
+        renderCards(data.cards || []);
+      } catch (fallbackErr) {
+        title.textContent = 'Failed to load card pack.';
+      }
+    } else {
+      title.textContent = 'Failed to load card pack.';
+    }
+  }
+
+  function renderCards(cards) {
+    cards.forEach((card, index) => {
+      const cardSlot = document.createElement('div');
+      cardSlot.classList.add('card-slot');
+      cardSlot.style.animationDelay = `${index * 1}s`;
+
+      const cardBack = document.createElement('img');
+      cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
+      cardBack.className = 'card-img card-back';
+      cardSlot.appendChild(cardBack);
+
+      const cardFront = document.createElement('img');
+      cardFront.src = `images/cards/${card.filename}`;
+      cardFront.className = `card-img border-${card.rarity?.toLowerCase() || 'common'}`;
+      cardFront.style.opacity = '0';
+      cardFront.style.transform = 'rotateY(90deg)';
+      cardFront.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      cardSlot.appendChild(cardFront);
+
+      container.appendChild(cardSlot);
+
+      setTimeout(() => {
+        cardBack.classList.add('flip-out');
+        setTimeout(() => {
+          cardFront.style.opacity = '1';
+          cardFront.style.transform = 'rotateY(0deg)';
+        }, 500);
+      }, 1000 * (index + 1));
+    });
   }
 }
 
