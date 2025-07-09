@@ -13,25 +13,26 @@ async function renderPackReveal() {
 
   try {
     const res = await fetch(revealUrl);
-    const cards = await res.json();
+    const data = await res.json();
 
-    title.textContent = 'New Card Pack Unlocked!';
+    const cards = data.cards || []; // ✅ Use `data.cards` instead of assuming array
+    title.textContent = data.title || 'New Card Pack Unlocked!';
 
     cards.forEach((card, index) => {
       const cardSlot = document.createElement('div');
       cardSlot.classList.add('card-slot');
       cardSlot.style.animationDelay = `${index * 1}s`;
 
-      // Card back image (starts visible)
+      // Card back
       const cardBack = document.createElement('img');
       cardBack.src = 'images/cards/000_WinterlandDeathDeck_Back.png';
       cardBack.className = 'card-img card-back';
       cardSlot.appendChild(cardBack);
 
-      // Card front image
+      // Card front
       const cardFront = document.createElement('img');
       cardFront.src = `images/cards/${card.filename}`;
-      cardFront.className = `card-img border-${card.rarity.toLowerCase()}`;
+      cardFront.className = `card-img border-${card.rarity?.toLowerCase() || 'common'}`;
       cardFront.style.opacity = '0';
       cardFront.style.transform = 'rotateY(90deg)';
       cardFront.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
@@ -46,6 +47,7 @@ async function renderPackReveal() {
           cardFront.style.transform = 'rotateY(0deg)';
         }, 500);
 
+        // "New!" badge
         if (card.isNew) {
           const badge = document.createElement('span');
           badge.className = 'new-unlock';
@@ -61,8 +63,10 @@ async function renderPackReveal() {
       }, 1000 * (index + 1));
     });
 
-    let seconds = 10;
+    // Countdown
+    let seconds = data.autoCloseIn || 10;
     countdown.textContent = `Closing in ${seconds}s...`;
+
     const timer = setInterval(() => {
       seconds--;
       countdown.textContent = `Closing in ${seconds}s...`;
