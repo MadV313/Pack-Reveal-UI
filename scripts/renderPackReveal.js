@@ -8,9 +8,9 @@ async function renderPackReveal() {
   const title = document.getElementById('reveal-title');
 
   const params = new URLSearchParams(window.location.search);
-  const uid = params.get('uid');
+  const userId = params.get('userId');
   const fallbackUrl = 'data/mock_pack_reveal.json';
-  const revealUrl = uid ? `/reveal/${uid}.json` : fallbackUrl;
+  const revealUrl = userId ? `data/reveal_${userId}.json` : fallbackUrl;
 
   try {
     const res = await fetch(revealUrl);
