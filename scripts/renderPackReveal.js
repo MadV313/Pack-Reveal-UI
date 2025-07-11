@@ -33,7 +33,7 @@ async function renderPackReveal() {
 
       // Card front
       const cardFront = document.createElement('img');
-      cardFront.src = `images/cards/${card.filename}`;
+      cardFront.src = `./images/cards/${card.filename}`;
       cardFront.className = `card-img border-${card.rarity?.toLowerCase() || 'common'}`;
       cardFront.style.opacity = '0';
       cardFront.style.transform = 'rotateY(90deg)';
@@ -111,7 +111,7 @@ async function renderPackReveal() {
       cardSlot.appendChild(cardBack);
 
       const cardFront = document.createElement('img');
-      cardFront.src = `images/cards/${card.filename}`;
+      cardFront.src = `./images/cards/${card.filename}`;
       cardFront.className = `card-img border-${card.rarity?.toLowerCase() || 'common'}`;
       cardFront.style.opacity = '0';
       cardFront.style.transform = 'rotateY(90deg)';
