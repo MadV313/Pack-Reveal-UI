@@ -131,7 +131,7 @@ async function packReveal() {
       const res = await fetch(`data/reveal_${uid}.json`);
       if (!res.ok) throw new Error();
       const data = await res.json();
-      return data.cards || data;
+      return Array.isArray(data) ? data : data.cards || [];
     } catch {
       console.warn('Backend reveal file not found — using fallback pack.');
       return [];
