@@ -1,4 +1,3 @@
-
 const USE_MOCK_MODE = false; // Set to false when backend is ready
 
 async function packReveal() {
@@ -8,6 +7,7 @@ async function packReveal() {
   const countdownEl = document.getElementById('countdown');
   const closeBtn = document.getElementById('closeBtn');
   const toast = document.getElementById('toast');
+  const title = document.getElementById('reveal-title');
 
   if (!userId) {
     console.error('Missing uid in URL. Cannot load reveal file.');
@@ -50,6 +50,7 @@ async function packReveal() {
       cards.forEach((card, i) => {
         const cardSlot = document.createElement('div');
         cardSlot.className = 'card-slot drop-in';
+        cardSlot.style.animationDelay = `${i * 1}s`;
 
         const back = document.createElement('img');
         back.src = 'images/cards/000_CardBack_Unique.png';
@@ -58,7 +59,7 @@ async function packReveal() {
         const front = document.createElement('img');
         front.src = `images/cards/${card.filename}`;
         front.className = `card-img ${getRarityClass(card.rarity)}`;
-        if (card.rarity.toLowerCase() === 'legendary') {
+        if (card.rarity?.toLowerCase() === 'legendary') {
           front.classList.add('shimmer');
         }
         front.style.opacity = '0';
@@ -89,6 +90,7 @@ async function packReveal() {
       });
 
       container.classList.add('show');
+      title.textContent = cards.length ? 'New Card Pack Unlocked!' : 'No cards found.';
       flipQueue.forEach(fn => fn());
     }, 1500);
   }, 2500);
@@ -116,7 +118,7 @@ async function packReveal() {
   }
 
   function getRarityClass(rarity) {
-    switch (rarity.toLowerCase()) {
+    switch (rarity?.toLowerCase()) {
       case 'common': return 'border-common';
       case 'uncommon': return 'border-uncommon';
       case 'rare': return 'border-rare';
@@ -127,14 +129,26 @@ async function packReveal() {
   }
 
   async function fetchCards(uid) {
+    const primaryUrl = `data/reveal_${uid}.json`;
+    const fallbackUrl = 'data/mock_pack_reveal.json';
+
     try {
-      const res = await fetch(`data/reveal_${uid}.json`);
-      if (!res.ok) throw new Error();
+      const res = await fetch(primaryUrl);
+      if (!res.ok) throw new Error(`Primary fetch failed (${res.status})`);
       const data = await res.json();
+      if (data.title && title) title.textContent = data.title;
       return Array.isArray(data) ? data : data.cards || [];
     } catch {
-      console.warn('Backend reveal file not found — using fallback pack.');
-      return [];
+      console.warn('⚠️ Reveal file not found. Trying fallback...');
+      try {
+        const res = await fetch(fallbackUrl);
+        const data = await res.json();
+        if (data.title && title) title.textContent = `Fallback: ${data.title}`;
+        return data.cards || [];
+      } catch {
+        title.textContent = 'Failed to load card pack.';
+        return [];
+      }
     }
   }
 }
