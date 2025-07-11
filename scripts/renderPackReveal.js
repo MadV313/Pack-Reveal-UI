@@ -19,6 +19,7 @@ async function renderPackReveal() {
     const data = await res.json();
     const cards = data.cards || [];
     title.textContent = data.title || 'New Card Pack Unlocked!';
+    container.classList.add('show');
 
     cards.forEach((card, index) => {
       const cardSlot = document.createElement('div');
@@ -33,7 +34,7 @@ async function renderPackReveal() {
 
       // Card front
       const cardFront = document.createElement('img');
-      cardFront.src = `./images/cards/${card.filename}`;
+      cardFront.src = `images/cards/${card.filename}`;
       cardFront.className = `card-img border-${card.rarity?.toLowerCase() || 'common'}`;
       cardFront.style.opacity = '0';
       cardFront.style.transform = 'rotateY(90deg)';
@@ -49,7 +50,6 @@ async function renderPackReveal() {
           cardFront.style.transform = 'rotateY(0deg)';
         }, 500);
 
-        // "New!" badge
         if (card.isNew) {
           const badge = document.createElement('span');
           badge.className = 'new-unlock';
@@ -57,10 +57,10 @@ async function renderPackReveal() {
           cardSlot.appendChild(badge);
 
           toast.textContent = `New card unlocked: ${card.name}`;
-          toast.classList.add('show');
+          toast.classList.add('show', 'pulse');
 
           const isLast = index === cards.length - 1;
-          setTimeout(() => toast.classList.remove('show'), isLast ? 3000 : 1500);
+          setTimeout(() => toast.classList.remove('show', 'pulse'), isLast ? 3000 : 1500);
         }
       }, 1000 * (index + 1));
     });
@@ -84,12 +84,12 @@ async function renderPackReveal() {
   } catch (err) {
     console.error('❌ Pack reveal load failed, fallback engaged:', err);
 
-    // Fallback to mock file
     if (revealUrl !== fallbackUrl) {
       try {
         const res = await fetch(fallbackUrl);
         const data = await res.json();
         title.textContent = 'Fallback: Mock Pack Reveal';
+        container.classList.add('show');
         renderCards(data.cards || []);
       } catch (fallbackErr) {
         title.textContent = 'Failed to load card pack.';
@@ -111,7 +111,7 @@ async function renderPackReveal() {
       cardSlot.appendChild(cardBack);
 
       const cardFront = document.createElement('img');
-      cardFront.src = `./images/cards/${card.filename}`;
+      cardFront.src = `images/cards/${card.filename}`;
       cardFront.className = `card-img border-${card.rarity?.toLowerCase() || 'common'}`;
       cardFront.style.opacity = '0';
       cardFront.style.transform = 'rotateY(90deg)';
