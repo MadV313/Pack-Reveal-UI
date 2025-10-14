@@ -172,8 +172,9 @@ async function packReveal() {
    * Order of attempts:
    *  1) <api>/packReveal/reveal?token=...
    *  2) <api>/packReveal/reveal?uid=...
-   *  3) data/reveal_<uid>.json (static fallback)  [requires uid]
-   *  4) data/mock_pack_reveal.json (dev fallback)
+   *  3) data/reveal_<token>.json (static, when token is present)
+   *  4) data/reveal_<uid>.json (static, legacy)
+   *  5) data/mock_pack_reveal.json (dev fallback)
    */
   async function fetchCards({ token, uid, apiBase }) {
     const tryFetch = async (url, label) => {
@@ -203,9 +204,12 @@ async function packReveal() {
         );
       }
 
-      // Static fallback: requires uid
+      // Static fallbacks
+      if (token) {
+        return await tryFetch(`data/reveal_${encodeURIComponent(token)}.json`, 'Static(token)');
+      }
       if (uid) {
-        return await tryFetch(`data/reveal_${uid}.json`, 'Static(uid)');
+        return await tryFetch(`data/reveal_${encodeURIComponent(uid)}.json`, 'Static(uid)');
       }
 
       throw new Error('no source available');
