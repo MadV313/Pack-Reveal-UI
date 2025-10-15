@@ -38,6 +38,31 @@
       box-shadow: 0 0 15px #00ffff, 0 0 5px #00ffff inset;
       background-color: #004d4d;
     }
+
+    /* 🎵 tiny music toggle (same style language as other UIs) */
+    #musicToggle {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 1003;
+      background: rgba(0,0,0,0.6);
+      color: #00ffff;
+      border: 1px solid #00ffff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+    }
+    #musicToggle:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 10px rgba(0,255,255,.5);
+      background: rgba(0,0,0,0.75);
+    }
+    #musicToggle[data-state="muted"] { color: #66ffff; opacity: .9; }
+    #musicToggle[data-state="playing"] { color: #00ff99; border-color: #00ff99; }
   </style>
 </head>
 <body>
@@ -51,6 +76,60 @@
   <div id="toast"></div>
   <p id="countdown"></p>
   <button id="closeBtn" class="back-button">Back to HUB</button>
+
+  <!-- 🎵 Background music (autoplay muted, loop; will unmute on first interaction) -->
+  <audio id="bgm" src="audio/bg/Follow the Trail.mp3" autoplay muted loop preload="auto"></audio>
+  <button id="musicToggle" data-state="muted" aria-label="Toggle background music">🔇 Music</button>
+
+  <script>
+    (function initBGM() {
+      const audio = document.getElementById('bgm');
+      const btn   = document.getElementById('musicToggle');
+
+      const setBtn = () => {
+        const playing = !audio.muted && !audio.paused;
+        btn.dataset.state = playing ? 'playing' : 'muted';
+        btn.textContent   = playing ? '🎵 Music' : '🔇 Music';
+      };
+
+      const tryPlay = async () => {
+        try {
+          await audio.play();
+        } catch {
+          // Autoplay blocked — keep muted until user interacts
+        } finally {
+          setBtn();
+        }
+      };
+
+      // Start muted (for autoplay policies); unmute on first user gesture
+      tryPlay();
+
+      const unlock = () => {
+        if (audio.muted) {
+          audio.muted = false;
+          tryPlay();
+        }
+        window.removeEventListener('click', unlock, { once: true });
+        window.removeEventListener('keydown', unlock, { once: true });
+        window.removeEventListener('touchstart', unlock, { once: true });
+      };
+      window.addEventListener('click', unlock, { once: true });
+      window.addEventListener('keydown', unlock, { once: true });
+      window.addEventListener('touchstart', unlock, { once: true });
+
+      btn.addEventListener('click', async () => {
+        if (audio.muted || audio.paused) {
+          audio.muted = false;
+          await tryPlay();
+        } else {
+          audio.muted = true;
+          audio.pause();
+        }
+        setBtn();
+      });
+    })();
+  </script>
 
   <!-- ✅ Load finalized packReveal.js -->
   <script src="scripts/packReveal.js"></script>
