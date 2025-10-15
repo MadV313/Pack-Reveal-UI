@@ -5,6 +5,7 @@
 //  • Accepts ?api= and fetches from backend when provided
 //  • Graceful fallback to static JSON when no API or token is available
 //  • Redirects to Card-Collection-UI with token & api when known
+//  • NEW: forwards &new=###,### and &ts=... to Collection so it can highlight new cards
 
 const USE_MOCK_MODE = false; // Set to true to force local mock
 
@@ -38,6 +39,12 @@ async function packReveal() {
   document.body.appendChild(entranceEffect);
 
   const cards = await fetchCards({ token, uid, apiBase });
+
+  // Build the list of newly unlocked numeric IDs (without '#') for Collection highlighting
+  const newIds = (Array.isArray(cards) ? cards : [])
+    .filter(c => c && (c.isNew === true || c.isNew === 'true'))
+    .map(c => String(c.card_id || '').replace('#', ''))
+    .filter(Boolean);
 
   // Store brief “recent unlocks” payload for downstream UIs if they want it
   try {
@@ -123,14 +130,14 @@ async function packReveal() {
     if (countdown < 0) {
       clearInterval(interval);
       setTimeout(() => {
-        window.location.href = buildCollectionUrl({ token, apiBase });
+        window.location.href = buildCollectionUrl({ token, apiBase, newIds });
       }, 200);
     }
   }, 1000);
 
   // Close button → HUB or Collection, prefer Collection if token available
   closeBtn.addEventListener('click', () => {
-    const collUrl = buildCollectionUrl({ token, apiBase });
+    const collUrl = buildCollectionUrl({ token, apiBase, newIds });
     if (collUrl.includes('token=')) {
       window.location.href = collUrl;
     } else {
@@ -140,15 +147,19 @@ async function packReveal() {
 
   /* ───────────────────────── helpers ───────────────────────── */
 
-  function buildCollectionUrl({ token, apiBase }) {
+  function buildCollectionUrl({ token, apiBase, newIds }) {
     const base = 'https://madv313.github.io/Card-Collection-UI';
+    const ts   = Date.now();
+    const newParam = Array.isArray(newIds) && newIds.length
+      ? `&new=${encodeURIComponent(newIds.join(','))}`
+      : '';
     if (token) {
       const apiQP = apiBase ? `&api=${encodeURIComponent(apiBase)}` : '';
-      return `${base}/index.html?token=${encodeURIComponent(token)}${apiQP}&fromPackReveal=true`;
+      return `${base}/index.html?token=${encodeURIComponent(token)}${apiQP}&fromPackReveal=true${newParam}&ts=${ts}`;
     }
     // Fallback if we don’t know a token yet
-    return `${base}/?fromPackReveal=true`;
-  }
+    return `${base}/?fromPackReveal=true${newParam}&ts=${ts}`;
+    }
 
   function showToast(message) {
     toast.textContent = message;
