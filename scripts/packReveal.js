@@ -1,4 +1,18 @@
-// scripts/packreveal.js
+// scripts/packReveal.js
+
+// ───────────────── anti-stale hardeners ─────────────────
+(function hardDisableSWAndBFCache() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations()
+      .then(regs => Promise.allSettled(regs.map(r => r.unregister().catch(()=>{}))))
+      .catch(()=>{});
+  }
+  // If returning from bfcache, force a fresh render
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) location.reload();
+  });
+})();
+
 // Frontend for Pack Reveal UI (hardened fetching + bulletproof redirect)
 //
 // Key changes:
@@ -32,6 +46,9 @@ async function packReveal() {
     return;
   }
 
+  // One-shot image cache-buster for this page view
+  const IMG_TS = Date.now();
+
   // Overlay + entrance flourish
   const overlay = document.createElement("div");
   overlay.id = "fadeOverlay";
@@ -39,7 +56,7 @@ async function packReveal() {
 
   const entranceEffect = document.createElement("div");
   entranceEffect.id = "cardEntranceEffect";
-  entranceEffect.innerHTML = `<img src="images/cards/000_CardBack_Unique.png" class="card-back-glow-effect" />`;
+  entranceEffect.innerHTML = `<img src="images/cards/000_CardBack_Unique.png?ts=${IMG_TS}" class="card-back-glow-effect" />`;
   document.body.appendChild(entranceEffect);
 
   // ---- Fetch reveal (API-first, no-cache) ----
@@ -80,12 +97,12 @@ async function packReveal() {
         slot.style.animationDelay = `${i * 1}s`;
 
         const back = document.createElement("img");
-        back.src = "images/cards/000_CardBack_Unique.png";
+        back.src = `images/cards/000_CardBack_Unique.png?ts=${IMG_TS}`;
         back.className = "card-img card-back";
 
         const front = document.createElement("img");
         // keep using provided filename; card collection UI handles fallbacks
-        front.src = `images/cards/${card.filename}`;
+        front.src = `images/cards/${card.filename}?ts=${IMG_TS}`;
         front.className = `card-img ${rarityClass(card.rarity)}`;
         if ((card.rarity || "").toLowerCase() === "legendary") {
           front.classList.add("shimmer");
