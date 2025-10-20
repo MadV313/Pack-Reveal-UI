@@ -5,7 +5,9 @@
 //  • Accepts ?api= and fetches from backend when provided
 //  • Graceful fallback to static JSON when no API or token is available
 //  • Redirects to Card-Collection-UI with token & api when known
-//  • NEW: forwards &new=###,### and &ts=... to Collection so it can highlight new cards
+//  • Forwards &new=###,### and &ts=... to Collection so it can highlight new cards
+//  • FIX: token-first reveal (no silent uid fallback when token exists) + cache-bust
+//  • FIX: honor incoming ?next= for deterministic handoff back to Collection UI
 
 const USE_MOCK_MODE = false; // Set to true to force local mock
 
@@ -14,13 +16,13 @@ async function packReveal() {
   const token       = urlParams.get('token');             // preferred
   const uid         = urlParams.get('uid');               // legacy
   const apiBase     = urlParams.get('api');               // backend base (optional)
+  const nextParam   = urlParams.get('next') || '';        // explicit handoff target (from /buycard)
   const container   = document.getElementById('cardContainer');
   const countdownEl = document.getElementById('countdown');
   const closeBtn    = document.getElementById('closeBtn');
   const toast       = document.getElementById('toast');
   const title       = document.getElementById('reveal-title');
 
-  // If neither token nor uid is present, we can't determine the player.
   if (!token && !uid) {
     console.error('Missing token/uid in URL. Cannot load reveal.');
     document.body.innerHTML = '<h2 style="color: white;">Error: Missing User ID</h2>';
@@ -38,7 +40,7 @@ async function packReveal() {
   `;
   document.body.appendChild(entranceEffect);
 
-  const cards = await fetchCards({ token, uid, apiBase });
+  const cards = await fetchCards({ token, uid, apiBase, titleEl: title });
 
   // Build the list of newly unlocked numeric IDs (without '#') for Collection highlighting
   const newIds = (Array.isArray(cards) ? cards : [])
@@ -130,14 +132,14 @@ async function packReveal() {
     if (countdown < 0) {
       clearInterval(interval);
       setTimeout(() => {
-        window.location.href = buildCollectionUrl({ token, apiBase, newIds });
+        window.location.href = buildCollectionUrl({ token, apiBase, newIds, next: nextParam });
       }, 200);
     }
   }, 1000);
 
-  // Close button → HUB or Collection, prefer Collection if token available
+  // Close button → HUB or Collection, prefer explicit next/Collection if token available
   closeBtn.addEventListener('click', () => {
-    const collUrl = buildCollectionUrl({ token, apiBase, newIds });
+    const collUrl = buildCollectionUrl({ token, apiBase, newIds, next: nextParam });
     if (collUrl.includes('token=')) {
       window.location.href = collUrl;
     } else {
@@ -147,19 +149,28 @@ async function packReveal() {
 
   /* ───────────────────────── helpers ───────────────────────── */
 
-  function buildCollectionUrl({ token, apiBase, newIds }) {
+  function buildCollectionUrl({ token, apiBase, newIds, next }) {
+    // If /buycard provided an explicit ?next=, honor it and just add a fresh ts
+    if (next) {
+      try {
+        const u = new URL(next, window.location.href);
+        u.searchParams.set('ts', String(Date.now()));
+        return u.toString();
+      } catch {
+        // fall through to manual build if next was malformed
+      }
+    }
+
     const base = 'https://madv313.github.io/Card-Collection-UI';
     const ts   = Date.now();
-    const newParam = Array.isArray(newIds) && newIds.length
-      ? `&new=${encodeURIComponent(newIds.join(','))}`
-      : '';
-    if (token) {
-      const apiQP = apiBase ? `&api=${encodeURIComponent(apiBase)}` : '';
-      return `${base}/index.html?token=${encodeURIComponent(token)}${apiQP}&fromPackReveal=true${newParam}&ts=${ts}`;
-    }
-    // Fallback if we don’t know a token yet
-    return `${base}/?fromPackReveal=true${newParam}&ts=${ts}`;
-    }
+    const qp = new URLSearchParams();
+    if (token) qp.set('token', token);
+    if (apiBase) qp.set('api', apiBase);
+    qp.set('fromPackReveal', 'true');
+    if (Array.isArray(newIds) && newIds.length) qp.set('new', newIds.join(','));
+    qp.set('ts', String(ts));
+    return `${base}/?${qp.toString()}`;
+  }
 
   function showToast(message) {
     toast.textContent = message;
@@ -181,57 +192,79 @@ async function packReveal() {
   /**
    * Fetch reveal cards for this opening, preferring the backend when available.
    * Order of attempts:
-   *  1) <api>/packReveal/reveal?token=...
-   *  2) <api>/packReveal/reveal?uid=...
-   *  3) data/reveal_<token>.json (static, when token is present)
-   *  4) data/reveal_<uid>.json (static, legacy)
-   *  5) data/mock_pack_reveal.json (dev fallback)
+   *  1) <api>/packReveal/reveal?token=...        (token-first)
+   *  2) <api>/packReveal/reveal?uid=...          (only if NO token)
+   *  3) data/reveal_<token>.json?ts=...          (static, token-first)
+   *  4) data/reveal_<uid>.json?ts=...            (static, only if NO token)
+   *  5) data/mock_pack_reveal.json?ts=...        (dev fallback)
    */
-  async function fetchCards({ token, uid, apiBase }) {
+  async function fetchCards({ token, uid, apiBase, titleEl }) {
     const tryFetch = async (url, label) => {
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error(`${label} failed: ${res.status}`);
       const json = await res.json();
-      // Support array form or {cards: []}
       const arr = Array.isArray(json) ? json : (json.cards || []);
-      if (json.title && title) title.textContent = json.title;
+      if (json.title && titleEl) titleEl.textContent = json.title;
       return arr;
     };
+
+    const ts = Date.now();
+    const api = apiBase ? apiBase.replace(/\/+$/, '') : '';
 
     try {
       if (USE_MOCK_MODE) throw new Error('mock mode');
 
-      // Prefer backend when apiBase is provided
-      if (apiBase && token) {
-        return await tryFetch(
-          `${apiBase.replace(/\/+$/, '')}/packReveal/reveal?token=${encodeURIComponent(token)}`,
-          'API(token)'
-        );
+      // TOKEN-FIRST: if token exists, do NOT silently fall back to uid
+      if (api && token) {
+        return await tryFetch(`${api}/packReveal/reveal?token=${encodeURIComponent(token)}&ts=${ts}`, 'API(token)');
       }
-      if (apiBase && uid) {
-        return await tryFetch(
-          `${apiBase.replace(/\/+$/, '')}/packReveal/reveal?uid=${encodeURIComponent(uid)}`,
-          'API(uid)'
-        );
+      if (!token && api && uid) {
+        return await tryFetch(`${api}/packReveal/reveal?uid=${encodeURIComponent(uid)}&ts=${ts}`, 'API(uid)');
       }
 
-      // Static fallbacks
+      // Static token-first
       if (token) {
-        return await tryFetch(`data/reveal_${encodeURIComponent(token)}.json`, 'Static(token)');
+        return await tryFetch(`data/reveal_${encodeURIComponent(token)}.json?ts=${ts}`, 'Static(token)');
       }
-      if (uid) {
-        return await tryFetch(`data/reveal_${encodeURIComponent(uid)}.json`, 'Static(uid)');
+      if (!token && uid) {
+        return await tryFetch(`data/reveal_${encodeURIComponent(uid)}.json?ts=${ts}`, 'Static(uid)');
       }
 
       throw new Error('no source available');
     } catch (e1) {
       console.warn('Primary fetch failed:', e1?.message || e1);
-      // Final fallback to mock (dev)
+
+      // If token was present, do NOT silently switch to uid file — that causes "repeat reveals"
+      if (token) {
+        try {
+          return await tryFetch(`data/mock_pack_reveal.json?ts=${ts}`, 'Mock');
+        } catch (e2) {
+          console.error('All fetch attempts failed (token path):', e2?.message || e2);
+          if (titleEl) titleEl.textContent = 'Failed to load card pack (token file missing).';
+          return [];
+        }
+      }
+
+      // No token: try uid static as last resort, then mock
+      if (uid) {
+        try {
+          return await tryFetch(`data/reveal_${encodeURIComponent(uid)}.json?ts=${ts}`, 'Static(uid)');
+        } catch (e2) {
+          try {
+            return await tryFetch(`data/mock_pack_reveal.json?ts=${ts}`, 'Mock');
+          } catch (e3) {
+            console.error('All fetch attempts failed (uid path):', e3?.message || e3);
+            if (titleEl) titleEl.textContent = 'Failed to load card pack.';
+            return [];
+          }
+        }
+      }
+
+      // Absolute last resort
       try {
-        return await tryFetch('data/mock_pack_reveal.json', 'Mock');
-      } catch (e2) {
-        console.error('All fetch attempts failed:', e2?.message || e2);
-        title.textContent = 'Failed to load card pack.';
+        return await tryFetch(`data/mock_pack_reveal.json?ts=${ts}`, 'Mock');
+      } catch {
+        if (titleEl) titleEl.textContent = 'Failed to load card pack.';
         return [];
       }
     }
