@@ -4,7 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Card Pack Reveal</title>
+
+  <!-- 🔒 Cache hints (headers beat meta, but these don't hurt on GH Pages) -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <link rel="stylesheet" href="styles/packReveal.css" />
+
+  <!-- 🧹 Belt & suspenders: kill any installed Service Workers + caches on this origin -->
+  <script>
+    (function hardDisableSWAndPurgeCaches(){
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then(regs => Promise.allSettled(regs.map(r => r.unregister().catch(()=>{}))))
+          .catch(()=>{});
+      }
+      if (window.caches && caches.keys) {
+        caches.keys()
+          .then(keys => Promise.allSettled(keys.map(k => caches.delete(k))))
+          .catch(()=>{});
+      }
+    })();
+  </script>
+
   <style>
     .snow {
       position: fixed;
@@ -93,13 +116,8 @@
       };
 
       const tryPlay = async () => {
-        try {
-          await audio.play();
-        } catch {
-          // Autoplay blocked — keep muted until user interacts
-        } finally {
-          setBtn();
-        }
+        try { await audio.play(); } catch { /* autoplay may be blocked */ }
+        finally { setBtn(); }
       };
 
       // Start muted (for autoplay policies); unmute on first user gesture
@@ -131,7 +149,7 @@
     })();
   </script>
 
-  <!-- ✅ Load finalized packReveal.js -->
+  <!-- ✅ Load finalized packReveal.js (it should fetch with cache:'no-store' + ?ts=) -->
   <script src="scripts/packReveal.js"></script>
 </body>
 </html>
